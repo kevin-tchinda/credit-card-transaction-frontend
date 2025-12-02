@@ -1,0 +1,17 @@
+<h1>Connexion</h1>
+
+<form method="POST" action="/front/login">
+  <label for="email">Adresse email :</label>
+  <input type="email" id="email" name="adresseEmail" required />
+
+  <label for="pwd">Mot de passe :</label>
+  <input type="password" id="pwd" name="motDePasse" required />
+
+  <button type="submit">Connexion</button>
+
+  <% if (error) { %>
+    <p style="color:red;"><%= error %></p>
+  <% } %>
+</form>
+
+<p>Vous n’avez pas de compte ? <a href="/front/signup">Créer un compte</a></p>

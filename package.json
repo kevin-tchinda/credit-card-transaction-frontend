@@ -14,7 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/kevin-tchinda/credit-card-transaction-frontend/issues"
   },
@@ -23,6 +23,7 @@
     "axios": "^1.13.2",
     "ejs": "^3.1.10",
     "express": "^5.2.1",
+    "express-session": "^1.18.2",
     "http-proxy-middleware": "^3.0.5"
   },
   "devDependencies": {

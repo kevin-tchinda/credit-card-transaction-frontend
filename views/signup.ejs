@@ -1,0 +1,26 @@
+<h1>Créer un compte</h1>
+
+<form method="POST" action="/front/signup">
+  <label for="nom">Nom :</label>
+  <input type="text" id="nom" name="nom" required />
+
+  <label for="prenom">Prénom :</label>
+  <input type="text" id="prenom" name="prenom" required />
+
+  <label for="email">Adresse email :</label>
+  <input type="email" id="email" name="adresseEmail" required />
+
+  <label for="tel">Téléphone :</label>
+  <input type="text" id="tel" name="telephone" required />
+
+  <label for="pwd">Mot de passe :</label>
+  <input type="password" id="pwd" name="motDePasse" required />
+
+  <button type="submit">S’inscrire</button>
+
+  <% if (error) { %>
+    <p style="color:red;"><%= error %></p>
+  <% } %>
+</form>
+
+<p>Vous avez déjà un compte ? <a href="/front/login">Se connecter</a></p>
