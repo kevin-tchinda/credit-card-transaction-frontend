@@ -1,0 +1,31 @@
+{
+  "name": "credit-card-transaction-frontend",
+  "version": "1.0.0",
+  "description": ".",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevin-tchinda/credit-card-transaction-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kevin-tchinda/credit-card-transaction-frontend/issues"
+  },
+  "homepage": "https://github.com/kevin-tchinda/credit-card-transaction-frontend#readme",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "http-proxy-middleware": "^3.0.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
