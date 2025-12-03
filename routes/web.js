@@ -1,4 +1,5 @@
 import express from "express";
+import { ensureAuthenticated, redirectIfAuthenticated } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ router.get("/", (req, res) => {
 });
 
 /* ------------------------- SIGNUP ------------------------- */
-router.get("/signup", (req, res) => {
+router.get("/signup", redirectIfAuthenticated, (req, res) => {
   res.render("signup", { error: null });
 });
 
@@ -34,14 +35,12 @@ router.post("/signup", async (req, res) => {
 
   } catch (err) {
     console.error("SIGNUP ERROR:", err);
-    return res.render("signup", {
-      error: "Erreur interne lors de l'inscription."
-    });
+    return res.render("signup", { error: "Erreur interne lors de l'inscription." });
   }
 });
 
 /* -------------------------- LOGIN -------------------------- */
-router.get("/login", (req, res) => {
+router.get("/login", redirectIfAuthenticated, (req, res) => {
   res.render("login", { error: null });
 });
 
@@ -70,15 +69,36 @@ router.post("/login", async (req, res) => {
 
   } catch (err) {
     console.error("LOGIN ERROR:", err);
-    return res.render("login", {
-      error: "Erreur interne lors de la connexion."
-    });
+    return res.render("login", { error: "Erreur interne lors de la connexion." });
   }
 });
 
 /* ------------------------ DASHBOARD ------------------------ */
-router.get("/dashboard", (req, res) => {
+router.get("/dashboard", ensureAuthenticated, (req, res) => {
   res.render("dashboard");
+});
+
+/* ---------------------- LISTE UTILISATEURS ---------------------- */
+router.get("/utilisateurs", ensureAuthenticated, async (req, res) => {
+  try {
+    const response = await fetch("http://localhost:3000/utilisateur");
+
+    const utilisateurs = await response.json();
+    console.log("UTILISATEURS REÇUS:", utilisateurs);
+
+    res.render("utilisateurs/index", { 
+      utilisateurs: Array.isArray(utilisateurs) ? utilisateurs : [],
+      error: null
+    });
+
+  } catch (err) {
+    console.error("ERREUR LISTE UTILISATEURS:", err);
+
+    res.render("utilisateurs/index", {
+      utilisateurs: [],
+      error: "Impossible de charger la liste des utilisateurs."
+    });
+  }
 });
 
 /* ------------------------- LOGOUT -------------------------- */
@@ -88,4 +108,5 @@ router.get("/logout", (req, res) => {
   });
 });
 
+/* --------------------- EXPORT FINAL ---------------------- */
 export default router;

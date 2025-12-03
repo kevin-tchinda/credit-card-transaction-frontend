@@ -1,0 +1,17 @@
+<header>
+  <nav>
+    <ul>
+      <li><a href="/front">Accueil</a></li>
+
+      <% if (isAuthenticated && user) { %>
+        <li><a href="/front/dashboard">Dashboard</a></li>
+        <li><a href="/front/logout">Déconnexion</a></li>
+        <li>Connecté : <%= user.email %></li>
+      <% } else { %>
+        <li><a href="/front/login">Connexion</a></li>
+        <li><a href="/front/signup">Inscription</a></li>
+      <% } %>
+    </ul>
+  </nav>
+</header>
+<hr />

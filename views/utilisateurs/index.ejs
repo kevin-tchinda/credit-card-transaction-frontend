@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des utilisateurs</title>
+</head>
+<body>
+  <%- include('../partials/header') %>
+
+  <h1>Utilisateurs</h1>
+
+  <% if (error) { %>
+    <p style="color:red;"><%= error %></p>
+  <% } %>
+
+  <table border="1" cellpadding="5">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Email</th>
+        <th>Téléphone</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% utilisateurs.forEach(u => { %>
+        <tr>
+          <td><%= u.idUtilisateur %></td>
+          <td><%= u.nom %></td>
+          <td><%= u.prenom %></td>
+          <td><%= u.adresseEmail %></td>
+          <td><%= u.telephone %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

@@ -25,6 +25,35 @@ app.use(session({
   cookie: { maxAge: 3600000 }
 }));
 
+
+// `decodeJwtPayload` 
+
+function decodeJwtPayload(token) {
+  try {
+    const payloadPart = token.split(".")[1];
+    const base64 = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
+    const json = Buffer.from(base64, "base64").toString("utf8");
+    return JSON.parse(json);
+  } catch (e) {
+    return null;
+  }
+}
+
+app.use((req, res, next) => {
+  const token = req.session.token;
+
+  if (token) {
+    const payload = decodeJwtPayload(token);
+    res.locals.isAuthenticated = true;
+    res.locals.user = payload; // { id, email, iat, exp }
+  } else {
+    res.locals.isAuthenticated = false;
+    res.locals.user = null;
+  }
+
+  next();
+});
+
 /* -------------------- ROUTE RACINE -------------------- */
 app.get("/", (req, res) => {
   res.redirect("/front");
