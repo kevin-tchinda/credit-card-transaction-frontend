@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des analyses</title>
+</head>
+<body>
+
+  <%- include("../partials/menu"); %>
+
+  <h1>Liste des analyses</h1>
+
+  <% if (error) { %>
+    <p style="color:red"><%= error %></p>
+  <% } %>
+
+  <table border="1" cellpadding="8" cellspacing="0" width="100%">
+    <thead>
+      <tr>
+        <th>ID Analyse</th>
+        <th>ID Transaction</th>
+        <th>Score (%)</th>
+        <th>Décision</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% if (analyses.length === 0) { %>
+        <tr>
+          <td colspan="5" style="text-align:center;">Aucune analyse trouvée</td>
+        </tr>
+      <% } else { %>
+
+        <% analyses.forEach(a => { %>
+          <tr>
+            <td><%= a.idAnalyse %></td>
+            <td><%= a.idTransaction %></td>
+            <td><%= a.probabiliteFraude %></td>
+            <td>
+              <% if (a.isFraude) { %>
+                Frauduleuse
+              <% } else { %>
+                Normale
+              <% } %>
+            </td>
+            <td>
+              <a href="/front/analyses/<%= a.idAnalyse %>">Voir</a>
+            </td>
+          </tr>
+        <% }) %>
+
+      <% } %>
+    </tbody>
+  </table>
+
+  <br>
+
+  <!-- PAGINATION -->
+  <div style="margin-top: 10px;">
+    <p>Page <%= page %> / <%= totalPages %></p>
+
+    <% if (page > 1) { %>
+      <a href="/front/analyses?page=<%= page - 1 %>">Page précédente</a>
+    <% } %>
+
+    <% if (page < totalPages) { %>
+      <a href="/front/analyses?page=<%= page + 1 %>" style="margin-left: 10px;">Page suivante</a>
+    <% } %>
+  </div>
+
+  <hr>
+
+  <p>Projet détection de fraude - Frontend EJS</p>
+
+</body>
+</html>

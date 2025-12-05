@@ -1,0 +1,19 @@
+<%- include("../partials/header") %>
+
+<h1>Détail de l’analyse</h1>
+
+<% if (error) { %>
+  <p style="color:red;"><%= error %></p>
+<% } else { %>
+
+  <p><strong>ID analyse :</strong> <%= analyse.idAnalyse %></p>
+  <p><strong>ID transaction :</strong> <%= analyse.idTransaction %></p>
+  <p><strong>Score :</strong> <%= analyse.score %></p>
+  <p><strong>Décision :</strong> <%= analyse.resultat %></p>
+  <p><strong>Date :</strong> <%= analyse.dateAnalyse %></p>
+
+<% } %>
+
+<a href="/front/analyses">Retour à la liste</a>
+
+<%- include("../partials/footer") %>

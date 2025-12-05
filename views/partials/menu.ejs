@@ -1,0 +1,17 @@
+<nav>
+  <ul>
+    <li><a href="/front">Accueil</a></li>
+    <li><a href="/front/dashboard">Dashboard</a></li>
+    <li><a href="/front/utilisateurs">Utilisateurs</a></li>
+    <li><a href="/front/transactions">Transactions</a></li>
+    <li><a href="/front/analyses">Analyses</a></li>
+    <li><a href="/front/logout">Déconnexion</a></li>
+  </ul>
+
+
+  <% if (typeof user !== "undefined" && user) { %>
+  <p>Connecté : <%= user.email %></p>
+  <% } %>
+</nav>
+<link href="/css/style.css" rel="stylesheet">
+<hr>

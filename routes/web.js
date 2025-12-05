@@ -36,7 +36,6 @@ router.post("/signup", async (req, res) => {
     return res.redirect("/front/login");
 
   } catch (err) {
-    console.error("SIGNUP ERROR:", err);
     return res.render("signup", { error: "Erreur interne lors de l'inscription." });
   }
 });
@@ -68,7 +67,6 @@ router.post("/login", async (req, res) => {
     return res.redirect("/front/dashboard");
 
   } catch (err) {
-    console.error("LOGIN ERROR:", err);
     return res.render("login", { error: "Erreur interne lors de la connexion." });
   }
 });
@@ -84,45 +82,38 @@ router.get("/dashboard", ensureAuthenticated, (req, res) => {
    UTILISATEURS - CRUD COMPLET
 ========================================================= */
 
-/* ---------- LISTE AVEC PAGINATION ---------- */
 router.get("/utilisateurs", ensureAuthenticated, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
 
   try {
     const response = await fetch(`http://localhost:3000/utilisateur?page=${page}&limit=10`, {
       method: "GET",
-      headers: {
-        "Authorization": `Bearer ${req.session.token}`
-      }
+      headers: { "Authorization": `Bearer ${req.session.token}` }
     });
 
     const result = await response.json();
 
     res.render("utilisateurs/index", {
       utilisateurs: result.data || [],
-      page: result.page,
-      totalPages: result.totalPages,
+      page: result.page || 1,
+      totalPages: result.totalPages || 1,
       error: null
     });
 
   } catch (err) {
-    console.error("ERREUR LISTE UTILISATEURS:", err);
-
     res.render("utilisateurs/index", {
       utilisateurs: [],
       page: 1,
       totalPages: 1,
-      error: "Impossible de charger la liste des utilisateurs."
+      error: "Impossible de charger les utilisateurs."
     });
   }
 });
 
-/* ---------- FORMULAIRE DE CREATION ---------- */
 router.get("/utilisateurs/create", ensureAuthenticated, (req, res) => {
   res.render("utilisateurs/create", { error: null });
 });
 
-/* ---------- AJOUT UTILISATEUR ---------- */
 router.post("/utilisateurs/create", ensureAuthenticated, async (req, res) => {
   try {
     const response = await fetch("http://localhost:3000/utilisateur", {
@@ -138,31 +129,26 @@ router.post("/utilisateurs/create", ensureAuthenticated, async (req, res) => {
 
     if (!response.ok) {
       return res.render("utilisateurs/create", {
-        error: result.error || "Impossible de créer l’utilisateur."
+        error: result.error || "Impossible de créer l'utilisateur."
       });
     }
 
     return res.redirect("/front/utilisateurs");
 
   } catch (err) {
-    console.error("ERREUR CREATE USER:", err);
-
-    return res.render("utilisateurs/create", {
+    res.render("utilisateurs/create", {
       error: "Erreur interne lors de la création."
     });
   }
 });
 
-/* ---------- FORMULAIRE EDIT ---------- */
 router.get("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
   const id = req.params.id;
 
   try {
     const response = await fetch(`http://localhost:3000/utilisateur/${id}`, {
       method: "GET",
-      headers: {
-        "Authorization": `Bearer ${req.session.token}`
-      }
+      headers: { "Authorization": `Bearer ${req.session.token}` }
     });
 
     const utilisateur = await response.json();
@@ -180,16 +166,13 @@ router.get("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
     });
 
   } catch (err) {
-    console.error("ERREUR GET EDIT UTILISATEUR :", err);
-
-    return res.render("utilisateurs/edit", {
+    res.render("utilisateurs/edit", {
       utilisateur: null,
-      error: "Erreur interne."
+      error: "Erreur interne lors du chargement."
     });
   }
 });
 
-/* ---------- UPDATE UTILISATEUR ---------- */
 router.post("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
   const id = req.params.id;
 
@@ -212,11 +195,9 @@ router.post("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
       });
     }
 
-    res.redirect("/front/utilisateurs");
+    return res.redirect("/front/utilisateurs");
 
   } catch (err) {
-    console.error("ERREUR UPDATE UTILISATEUR :", err);
-
     res.render("utilisateurs/edit", {
       utilisateur: { idUtilisateur: id, ...req.body },
       error: "Erreur interne lors de la mise à jour."
@@ -225,10 +206,9 @@ router.post("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
 });
 
 /* =========================================================
-   TRANSACTIONS - LISTE, DETAIL, CREATION
+   TRANSACTIONS - CRUD
 ========================================================= */
 
-/* ---------- LISTE AVEC PAGINATION ---------- */
 router.get("/transactions", ensureAuthenticated, async (req, res) => {
   try {
     const page = req.query.page || 1;
@@ -237,9 +217,7 @@ router.get("/transactions", ensureAuthenticated, async (req, res) => {
       `http://localhost:3000/transaction?page=${page}`,
       {
         method: "GET",
-        headers: {
-          "Authorization": `Bearer ${req.session.token}`
-        }
+        headers: { "Authorization": `Bearer ${req.session.token}` }
       }
     );
 
@@ -253,8 +231,6 @@ router.get("/transactions", ensureAuthenticated, async (req, res) => {
     });
 
   } catch (err) {
-    console.error("ERREUR LISTE TRANSACTIONS:", err);
-
     res.render("transactions/index", {
       transactions: [],
       page: 1,
@@ -264,12 +240,10 @@ router.get("/transactions", ensureAuthenticated, async (req, res) => {
   }
 });
 
-/* ---------- FORM CREATE ---------- */
 router.get("/transactions/create", ensureAuthenticated, (req, res) => {
   res.render("transactions/create", { error: null });
 });
 
-/* ---------- CREER TRANSACTION ---------- */
 router.post("/transactions/create", ensureAuthenticated, async (req, res) => {
   try {
     const response = await fetch("http://localhost:3000/transaction", {
@@ -292,24 +266,19 @@ router.post("/transactions/create", ensureAuthenticated, async (req, res) => {
     return res.redirect("/front/transactions");
 
   } catch (err) {
-    console.error("CREATE TRANSACTION ERROR:", err);
-
     res.render("transactions/create", {
       error: "Erreur interne lors de la création."
     });
   }
 });
 
-/* ---------- DETAIL TRANSACTION ---------- */
 router.get("/transactions/:id", ensureAuthenticated, async (req, res) => {
   try {
     const response = await fetch(
       `http://localhost:3000/transaction/${req.params.id}`,
       {
         method: "GET",
-        headers: {
-          "Authorization": `Bearer ${req.session.token}`
-        }
+        headers: { "Authorization": `Bearer ${req.session.token}` }
       }
     );
 
@@ -325,8 +294,6 @@ router.get("/transactions/:id", ensureAuthenticated, async (req, res) => {
     res.render("transactions/detail", { transaction, error: null });
 
   } catch (err) {
-    console.error("ERREUR DETAILS TRANSACTION:", err);
-
     res.render("transactions/detail", {
       transaction: null,
       error: "Impossible de charger la transaction."
@@ -334,16 +301,13 @@ router.get("/transactions/:id", ensureAuthenticated, async (req, res) => {
   }
 });
 
-/* ------------------ FORM EDIT TRANSACTION ------------------ */
 router.get("/transactions/:id/edit", ensureAuthenticated, async (req, res) => {
   const id = req.params.id;
 
   try {
     const response = await fetch(`http://localhost:3000/transaction/${id}`, {
       method: "GET",
-      headers: {
-        "Authorization": `Bearer ${req.session.token}`
-      }
+      headers: { "Authorization": `Bearer ${req.session.token}` }
     });
 
     const transaction = await response.json();
@@ -355,23 +319,16 @@ router.get("/transactions/:id/edit", ensureAuthenticated, async (req, res) => {
       });
     }
 
-    res.render("transactions/edit", {
-      transaction,
-      error: null
-    });
+    res.render("transactions/edit", { transaction, error: null });
 
   } catch (err) {
-    console.error("ERREUR GET EDIT TRANSACTION :", err);
-
     res.render("transactions/edit", {
       transaction: null,
-      error: "Erreur interne lors du chargement du formulaire."
+      error: "Erreur interne lors du chargement."
     });
   }
 });
 
-
-/* ------------------ UPDATE TRANSACTION ------------------ */
 router.post("/transactions/:id/edit", ensureAuthenticated, async (req, res) => {
   const id = req.params.id;
 
@@ -397,16 +354,80 @@ router.post("/transactions/:id/edit", ensureAuthenticated, async (req, res) => {
     return res.redirect("/front/transactions");
 
   } catch (err) {
-    console.error("ERREUR UPDATE TRANSACTION :", err);
-
-    return res.render("transactions/edit", {
+    res.render("transactions/edit", {
       transaction: { idTransaction: id, ...req.body },
       error: "Erreur interne lors de la mise à jour."
     });
   }
 });
 
+/* =========================================================
+   ANALYSES - LISTE + DETAIL
+========================================================= */
 
+router.get("/analyses", ensureAuthenticated, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+
+    const response = await fetch(
+      `http://localhost:3000/analyse`,
+      {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${req.session.token}` }
+      }
+    );
+
+    const result = await response.json();
+    console.log("ANALYSES REÇUES:", result);
+
+    // Adaptation automatique si le backend renvoie juste un tableau
+    const analyses = Array.isArray(result) ? result : (result.data || []);
+
+    res.render("analyses/index", {
+      analyses,
+      page: 1,
+      totalPages: 1,
+      error: null
+    });
+
+  } catch (err) {
+    res.render("analyses/index", {
+      analyses: [],
+      page: 1,
+      totalPages: 1,
+      error: "Impossible de charger les analyses."
+    });
+  }
+});
+
+router.get("/analyses/:id", ensureAuthenticated, async (req, res) => {
+  try {
+    const response = await fetch(
+      `http://localhost:3000/analyse/${req.params.id}`,
+      {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${req.session.token}` }
+      }
+    );
+
+    const analyse = await response.json();
+
+    if (analyse.error) {
+      return res.render("analyses/detail", {
+        analyse: null,
+        error: analyse.error
+      });
+    }
+
+    res.render("analyses/detail", { analyse, error: null });
+
+  } catch (err) {
+    res.render("analyses/detail", {
+      analyse: null,
+      error: "Impossible de charger l'analyse."
+    });
+  }
+});
 
 /* ---------------------------------------------------------
    DECONNEXION
@@ -417,7 +438,4 @@ router.get("/logout", (req, res) => {
   });
 });
 
-/* ---------------------------------------------------------
-   EXPORT ROUTER
---------------------------------------------------------- */
 export default router;
