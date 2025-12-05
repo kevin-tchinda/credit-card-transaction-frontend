@@ -1,0 +1,33 @@
+<%- include("../partials/header") %>
+
+<h1>Créer une transaction</h1>
+
+<% if (error) { %>
+  <p style="color:red;"><%= error %></p>
+<% } %>
+
+<form action="/front/transactions/create" method="POST">
+
+  <label>Montant :</label>
+  <input type="number" name="montant" step="0.01" required>
+
+  <label>Lieux :</label>
+  <input type="text" name="paysTransaction" required>
+
+  <label>Statut :</label>
+  <select name="statut" required>
+    <option value="ACCEPTEE">ACCEPTEE</option>
+    <option value="REFUSEE">REFUSEE</option>
+    <option value="EN_ATTENTE">EN_ATTENTE</option>
+  </select>
+
+  <label>ID Utilisateur :</label>
+  <input type="number" name="idUtilisateur" required>
+
+  <button type="submit">Créer</button>
+
+</form>
+
+<a href="/front/transactions">⬅ Retour</a>
+
+<%- include("../partials/footer") %>

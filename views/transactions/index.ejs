@@ -1,0 +1,59 @@
+<%- include("../partials/header") %>
+
+<h1>Liste des transactions</h1>
+
+<% if (error) { %>
+  <p style="color: red;"><%= error %></p>
+<% } %>
+
+<table border="1" cellpadding="8">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Montant</th>
+      <th>Pays</th>
+      <th>Statut</th>
+      <th>Date</th>
+      <th>Utilisateur</th>
+      <th>Détails</th>
+      <th>Modifier</th>
+
+    </tr>
+  </thead>
+
+  <tbody>
+    <% transactions.forEach(t => { %>
+      <tr>
+        <td><%= t.idTransaction %></td>
+        <td><%= t.montant %></td>
+        <td><%= t.paysTransaction %></td>
+        <td><%= t.statut %></td>
+        <td><%= t.dateTransaction %></td>
+        <td>
+            <a href="/front/transactions/<%= t.idTransaction %>">Voir</a>
+        </td>
+        <td>
+          <%= t.Utilisateur ? t.Utilisateur.nom + " " + t.Utilisateur.prenom : "N/A" %>
+        </td>
+        <td>
+            <a href="/front/transactions/<%= t.idTransaction %>/edit">Modifier</a>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<!-- PAGINATION -->
+<div style="margin-top: 20px;">
+  <% if (page > 1) { %>
+    <a href="/front/transactions?page=<%= page - 1 %>">⬅️ Précédent</a>
+  <% } %>
+
+  <span> Page <%= page %> / <%= totalPages %> </span>
+
+  <% if (page < totalPages) { %>
+    <a href="/front/transactions?page=<%= page + 1 %>">Suivant ➡️</a>
+  <% } %>
+</div>
+
+<%- include("../partials/footer") %>

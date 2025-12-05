@@ -1,0 +1,36 @@
+<%- include("../partials/header") %>
+
+<h1>Modifier une transaction</h1>
+
+<% if (error) { %>
+  <p style="color:red;"><%= error %></p>
+<% } %>
+
+<form action="/front/transactions/<%= transaction.idTransaction %>/edit" method="POST">
+
+  <label>Montant :</label>
+  <input type="number" step="0.01" name="montant" value="<%= transaction.montant %>" required>
+
+  <label>Date :</label>
+  <input type="datetime-local" 
+         name="dateTransaction" 
+         value="<%= transaction.dateTransaction.replace('Z','').slice(0,16) %>" 
+         required>
+
+  <label>Pays :</label>
+  <input type="text" name="paysTransaction" value="<%= transaction.paysTransaction %>" required>
+
+  <label>Statut :</label>
+  <select name="statut" required>
+    <option value="valide" <%= transaction.statut === "valide" ? "selected" : "" %>>Valide</option>
+    <option value="suspecte" <%= transaction.statut === "suspecte" ? "selected" : "" %>>Suspecte</option>
+  </select>
+
+  <br><br>
+
+  <button type="submit">Mettre à jour</button>
+</form>
+
+<a href="/front/transactions">Retour</a>
+
+<%- include("../partials/footer") %>

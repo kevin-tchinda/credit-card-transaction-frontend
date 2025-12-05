@@ -1,0 +1,37 @@
+<%- include("../partials/header") %>
+
+<h1>Détails de la transaction</h1>
+
+<% if (error) { %>
+  <p style="color: red;"><%= error %></p>
+<% } else { %>
+
+  <p><strong>ID :</strong> <%= transaction.idTransaction %></p>
+  <p><strong>Montant :</strong> <%= transaction.montant %> $</p>
+  <p><strong>Pays :</strong> <%= transaction.paysTransaction %></p>
+  <p><strong>Statut :</strong> <%= transaction.statut %></p>
+  <p><strong>Date :</strong> <%= new Date(transaction.dateTransaction).toLocaleString() %></p>
+
+  <h3>Utilisateur associé</h3>
+  <% if (transaction.Utilisateur) { %>
+    <p><strong>Nom :</strong> <%= transaction.Utilisateur.nom %></p>
+    <p><strong>Prénom :</strong> <%= transaction.Utilisateur.prenom %></p>
+    <p><strong>Email :</strong> <%= transaction.Utilisateur.adresseEmail %></p>
+  <% } else { %>
+    <p>Aucun utilisateur lié.</p>
+  <% } %>
+
+  <h3>Analyse</h3>
+  <% if (transaction.Analyse) { %>
+    <p><strong>Score :</strong> <%= transaction.Analyse.score %></p>
+    <p><strong>Fraude :</strong> <%= transaction.Analyse.isFraud ? "Oui" : "Non" %></p>
+    <p><strong>Commentaire :</strong> <%= transaction.Analyse.commentaire %></p>
+  <% } else { %>
+    <p>Aucune analyse enregistrée.</p>
+  <% } %>
+
+<% } %>
+
+<a href="/front/transactions">⬅️ Retour à la liste</a>
+
+<%- include("../partials/footer") %>

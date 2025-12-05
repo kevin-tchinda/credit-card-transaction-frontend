@@ -3,19 +3,21 @@ import { ensureAuthenticated, redirectIfAuthenticated } from "../middleware/auth
 
 const router = express.Router();
 
-/* ---------------------- PAGE ACCUEIL ---------------------- */
+/* ---------------------------------------------------------
+   PAGE ACCUEIL
+--------------------------------------------------------- */
 router.get("/", (req, res) => {
   res.render("index");
 });
 
-/* ------------------------- SIGNUP ------------------------- */
+/* ---------------------------------------------------------
+   INSCRIPTION
+--------------------------------------------------------- */
 router.get("/signup", redirectIfAuthenticated, (req, res) => {
   res.render("signup", { error: null });
 });
 
 router.post("/signup", async (req, res) => {
-  console.log("FRONT SIGNUP BODY:", req.body);
-
   try {
     const response = await fetch("http://localhost:3000/auth/signup", {
       method: "POST",
@@ -39,14 +41,14 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-/* -------------------------- LOGIN -------------------------- */
+/* ---------------------------------------------------------
+   CONNEXION
+--------------------------------------------------------- */
 router.get("/login", redirectIfAuthenticated, (req, res) => {
   res.render("login", { error: null });
 });
 
 router.post("/login", async (req, res) => {
-  console.log("FRONT LOGIN BODY:", req.body);
-
   try {
     const response = await fetch("http://localhost:3000/auth/login", {
       method: "POST",
@@ -63,8 +65,6 @@ router.post("/login", async (req, res) => {
     }
 
     req.session.token = result.token;
-    console.log("TOKEN SESSION:", req.session.token);
-
     return res.redirect("/front/dashboard");
 
   } catch (err) {
@@ -73,12 +73,18 @@ router.post("/login", async (req, res) => {
   }
 });
 
-/* ------------------------ DASHBOARD ------------------------ */
+/* ---------------------------------------------------------
+   DASHBOARD
+--------------------------------------------------------- */
 router.get("/dashboard", ensureAuthenticated, (req, res) => {
   res.render("dashboard");
 });
 
-/* ---------------------- LISTE UTILISATEURS ---------------------- */
+/* =========================================================
+   UTILISATEURS - CRUD COMPLET
+========================================================= */
+
+/* ---------- LISTE AVEC PAGINATION ---------- */
 router.get("/utilisateurs", ensureAuthenticated, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
 
@@ -91,8 +97,6 @@ router.get("/utilisateurs", ensureAuthenticated, async (req, res) => {
     });
 
     const result = await response.json();
-
-    console.log("UTILISATEURS REÇUS:", result);
 
     res.render("utilisateurs/index", {
       utilisateurs: result.data || [],
@@ -113,14 +117,12 @@ router.get("/utilisateurs", ensureAuthenticated, async (req, res) => {
   }
 });
 
-
-/* ----------------------- CREATE USER (FORM) ----------------------- */
+/* ---------- FORMULAIRE DE CREATION ---------- */
 router.get("/utilisateurs/create", ensureAuthenticated, (req, res) => {
   res.render("utilisateurs/create", { error: null });
 });
 
-
-/* ---------------------- CREATE USER (SUBMIT) ---------------------- */
+/* ---------- AJOUT UTILISATEUR ---------- */
 router.post("/utilisateurs/create", ensureAuthenticated, async (req, res) => {
   try {
     const response = await fetch("http://localhost:3000/utilisateur", {
@@ -151,8 +153,7 @@ router.post("/utilisateurs/create", ensureAuthenticated, async (req, res) => {
   }
 });
 
-
-/* ---------------------- FORMULAIRE EDIT UTILISATEUR ---------------------- */
+/* ---------- FORMULAIRE EDIT ---------- */
 router.get("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
   const id = req.params.id;
 
@@ -188,7 +189,7 @@ router.get("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
   }
 });
 
-
+/* ---------- UPDATE UTILISATEUR ---------- */
 router.post("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
   const id = req.params.id;
 
@@ -211,7 +212,6 @@ router.post("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
       });
     }
 
-    // Redirection après succès
     res.redirect("/front/utilisateurs");
 
   } catch (err) {
@@ -224,16 +224,200 @@ router.post("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
   }
 });
 
+/* =========================================================
+   TRANSACTIONS - LISTE, DETAIL, CREATION
+========================================================= */
+
+/* ---------- LISTE AVEC PAGINATION ---------- */
+router.get("/transactions", ensureAuthenticated, async (req, res) => {
+  try {
+    const page = req.query.page || 1;
+
+    const response = await fetch(
+      `http://localhost:3000/transaction?page=${page}`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${req.session.token}`
+        }
+      }
+    );
+
+    const result = await response.json();
+
+    res.render("transactions/index", {
+      transactions: result.data || [],
+      page: result.page || 1,
+      totalPages: result.totalPages || 1,
+      error: null
+    });
+
+  } catch (err) {
+    console.error("ERREUR LISTE TRANSACTIONS:", err);
+
+    res.render("transactions/index", {
+      transactions: [],
+      page: 1,
+      totalPages: 1,
+      error: "Impossible de charger les transactions."
+    });
+  }
+});
+
+/* ---------- FORM CREATE ---------- */
+router.get("/transactions/create", ensureAuthenticated, (req, res) => {
+  res.render("transactions/create", { error: null });
+});
+
+/* ---------- CREER TRANSACTION ---------- */
+router.post("/transactions/create", ensureAuthenticated, async (req, res) => {
+  try {
+    const response = await fetch("http://localhost:3000/transaction", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${req.session.token}`
+      },
+      body: JSON.stringify(req.body)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return res.render("transactions/create", {
+        error: result.error || "Erreur lors de la création."
+      });
+    }
+
+    return res.redirect("/front/transactions");
+
+  } catch (err) {
+    console.error("CREATE TRANSACTION ERROR:", err);
+
+    res.render("transactions/create", {
+      error: "Erreur interne lors de la création."
+    });
+  }
+});
+
+/* ---------- DETAIL TRANSACTION ---------- */
+router.get("/transactions/:id", ensureAuthenticated, async (req, res) => {
+  try {
+    const response = await fetch(
+      `http://localhost:3000/transaction/${req.params.id}`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${req.session.token}`
+        }
+      }
+    );
+
+    const transaction = await response.json();
+
+    if (transaction.error) {
+      return res.render("transactions/detail", {
+        transaction: null,
+        error: transaction.error
+      });
+    }
+
+    res.render("transactions/detail", { transaction, error: null });
+
+  } catch (err) {
+    console.error("ERREUR DETAILS TRANSACTION:", err);
+
+    res.render("transactions/detail", {
+      transaction: null,
+      error: "Impossible de charger la transaction."
+    });
+  }
+});
+
+/* ------------------ FORM EDIT TRANSACTION ------------------ */
+router.get("/transactions/:id/edit", ensureAuthenticated, async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const response = await fetch(`http://localhost:3000/transaction/${id}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${req.session.token}`
+      }
+    });
+
+    const transaction = await response.json();
+
+    if (transaction.error) {
+      return res.render("transactions/edit", {
+        transaction: null,
+        error: transaction.error
+      });
+    }
+
+    res.render("transactions/edit", {
+      transaction,
+      error: null
+    });
+
+  } catch (err) {
+    console.error("ERREUR GET EDIT TRANSACTION :", err);
+
+    res.render("transactions/edit", {
+      transaction: null,
+      error: "Erreur interne lors du chargement du formulaire."
+    });
+  }
+});
+
+
+/* ------------------ UPDATE TRANSACTION ------------------ */
+router.post("/transactions/:id/edit", ensureAuthenticated, async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const response = await fetch(`http://localhost:3000/transaction/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${req.session.token}`
+      },
+      body: JSON.stringify(req.body)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return res.render("transactions/edit", {
+        transaction: { idTransaction: id, ...req.body },
+        error: result.error || "Erreur lors de la mise à jour."
+      });
+    }
+
+    return res.redirect("/front/transactions");
+
+  } catch (err) {
+    console.error("ERREUR UPDATE TRANSACTION :", err);
+
+    return res.render("transactions/edit", {
+      transaction: { idTransaction: id, ...req.body },
+      error: "Erreur interne lors de la mise à jour."
+    });
+  }
+});
 
 
 
-
-/* ------------------------- LOGOUT -------------------------- */
+/* ---------------------------------------------------------
+   DECONNEXION
+--------------------------------------------------------- */
 router.get("/logout", (req, res) => {
   req.session.destroy(() => {
     res.redirect("/front/login");
   });
 });
 
-/* --------------------- EXPORT FINAL ---------------------- */
+/* ---------------------------------------------------------
+   EXPORT ROUTER
+--------------------------------------------------------- */
 export default router;
