@@ -1,0 +1,27 @@
+<%- include("../partials/header") %>
+
+<h1>Modifier un utilisateur</h1>
+
+<% if (error) { %>
+  <p style="color:red;"><%= error %></p>
+<% } %>
+
+<form method="POST">
+  <label>Nom :</label>
+  <input type="text" name="nom" value="<%= utilisateur.nom %>" required>
+
+  <label>Prénom :</label>
+  <input type="text" name="prenom" value="<%= utilisateur.prenom %>" required>
+
+  <label>Email :</label>
+  <input type="email" name="adresseEmail" value="<%= utilisateur.adresseEmail %>" required>
+
+  <label>Téléphone :</label>
+  <input type="text" name="telephone" value="<%= utilisateur.telephone %>" required>
+
+  <button type="submit">Sauvegarder</button>
+</form>
+
+<a href="/front/utilisateurs">⬅ Retour</a>
+
+<%- include("../partials/footer") %>

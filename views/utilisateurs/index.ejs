@@ -1,30 +1,37 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Liste des utilisateurs</title>
-</head>
-<body>
-  <%- include('../partials/header') %>
+<%- include("../partials/header") %>
 
-  <h1>Utilisateurs</h1>
+<h1>Utilisateurs</h1>
 
-  <% if (error) { %>
-    <p style="color:red;"><%= error %></p>
-  <% } %>
+<!-- Bouton création -->
+<a href="/front/utilisateurs/create"
+   style="display:inline-block; margin-bottom:15px;
+   padding:8px 12px; background:#3490dc; color:white;
+   border-radius:4px; text-decoration:none;">
+  + Ajouter un utilisateur
+</a>
 
-  <table border="1" cellpadding="5">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nom</th>
-        <th>Prénom</th>
-        <th>Email</th>
-        <th>Téléphone</th>
-      </tr>
-    </thead>
+<!-- Affichage erreur éventuelle -->
+<% if (error) { %>
+  <p style="color:red;"><%= error %></p>
+<% } %>
 
-    <tbody>
+<!-- Tableau des utilisateurs -->
+<table border="1" cellpadding="8" cellspacing="0">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nom</th>
+      <th>Prénom</th>
+      <th>Email</th>
+      <th>Téléphone</th>
+      <th>Modifier</th>
+      <th>Supprimer</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% if (Array.isArray(utilisateurs) && utilisateurs.length > 0) { %>
+
       <% utilisateurs.forEach(u => { %>
         <tr>
           <td><%= u.idUtilisateur %></td>
@@ -32,11 +39,73 @@
           <td><%= u.prenom %></td>
           <td><%= u.adresseEmail %></td>
           <td><%= u.telephone %></td>
+
+          <td>
+            <a href="/front/utilisateurs/<%= u.idUtilisateur %>/edit">Modifier</a>
+          </td>
+
+          <td>
+            <form method="POST" action="/front/utilisateurs/<%= u.idUtilisateur %>/delete"
+                  onsubmit="return confirm('Supprimer cet utilisateur ?');">
+              <button type="submit">Supprimer</button>
+            </form>
+          </td>
         </tr>
       <% }) %>
-    </tbody>
-  </table>
 
-  <%- include('../partials/footer') %>
-</body>
-</html>
+    <% } else { %>
+      <tr>
+        <td colspan="7" style="text-align:center;">
+          Aucun utilisateur trouvé.
+        </td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>
+
+
+<!-- PAGINATION -->
+<div style="margin-top: 25px; text-align:center;">
+
+  <!-- Bouton précédent -->
+  <% if (page > 1) { %>
+    <a href="/front/utilisateurs?page=<%= page - 1 %>"
+       style="margin-right:10px;">⬅ Précédent</a>
+  <% } %>
+
+  <!-- Numéros de pages -->
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <% if (i === page) { %>
+      <strong style="padding:5px 10px; border:1px solid #000; margin:0 3px;"><%= i %></strong>
+    <% } else { %>
+      <a href="/front/utilisateurs?page=<%= i %>"
+         style="padding:5px 10px; border:1px solid #aaa; margin:0 3px; text-decoration:none;">
+        <%= i %>
+      </a>
+    <% } %>
+  <% } %>
+
+  <!-- Bouton suivant -->
+  <% if (page < totalPages) { %>
+    <a href="/front/utilisateurs?page=<%= page + 1 %>"
+       style="margin-left:10px;">Suivant ➡</a>
+  <% } %>
+
+</div>
+
+
+
+<!-- Pagination simple -->
+<!-- <div style="margin-top:20px;">
+  <% if (page > 1) { %>
+    <a href="/front/utilisateurs?page=<%= page - 1 %>">⬅ Page précédente</a>
+  <% } %>
+
+  <span style="margin:0 10px;">Page <%= page %> / <%= totalPages %></span>
+
+  <% if (page < totalPages) { %>
+    <a href="/front/utilisateurs?page=<%= page + 1 %>">Page suivante ➡</a>
+  <% } %>
+</div> -->
+
+<%- include("../partials/footer") %>

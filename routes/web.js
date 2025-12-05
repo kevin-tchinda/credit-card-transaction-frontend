@@ -80,14 +80,24 @@ router.get("/dashboard", ensureAuthenticated, (req, res) => {
 
 /* ---------------------- LISTE UTILISATEURS ---------------------- */
 router.get("/utilisateurs", ensureAuthenticated, async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+
   try {
-    const response = await fetch("http://localhost:3000/utilisateur");
+    const response = await fetch(`http://localhost:3000/utilisateur?page=${page}&limit=10`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${req.session.token}`
+      }
+    });
 
-    const utilisateurs = await response.json();
-    console.log("UTILISATEURS REÇUS:", utilisateurs);
+    const result = await response.json();
 
-    res.render("utilisateurs/index", { 
-      utilisateurs: Array.isArray(utilisateurs) ? utilisateurs : [],
+    console.log("UTILISATEURS REÇUS:", result);
+
+    res.render("utilisateurs/index", {
+      utilisateurs: result.data || [],
+      page: result.page,
+      totalPages: result.totalPages,
       error: null
     });
 
@@ -96,10 +106,127 @@ router.get("/utilisateurs", ensureAuthenticated, async (req, res) => {
 
     res.render("utilisateurs/index", {
       utilisateurs: [],
+      page: 1,
+      totalPages: 1,
       error: "Impossible de charger la liste des utilisateurs."
     });
   }
 });
+
+
+/* ----------------------- CREATE USER (FORM) ----------------------- */
+router.get("/utilisateurs/create", ensureAuthenticated, (req, res) => {
+  res.render("utilisateurs/create", { error: null });
+});
+
+
+/* ---------------------- CREATE USER (SUBMIT) ---------------------- */
+router.post("/utilisateurs/create", ensureAuthenticated, async (req, res) => {
+  try {
+    const response = await fetch("http://localhost:3000/utilisateur", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${req.session.token}`
+      },
+      body: JSON.stringify(req.body)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return res.render("utilisateurs/create", {
+        error: result.error || "Impossible de créer l’utilisateur."
+      });
+    }
+
+    return res.redirect("/front/utilisateurs");
+
+  } catch (err) {
+    console.error("ERREUR CREATE USER:", err);
+
+    return res.render("utilisateurs/create", {
+      error: "Erreur interne lors de la création."
+    });
+  }
+});
+
+
+/* ---------------------- FORMULAIRE EDIT UTILISATEUR ---------------------- */
+router.get("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const response = await fetch(`http://localhost:3000/utilisateur/${id}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${req.session.token}`
+      }
+    });
+
+    const utilisateur = await response.json();
+
+    if (!response.ok) {
+      return res.render("utilisateurs/edit", {
+        utilisateur: null,
+        error: utilisateur.error || "Utilisateur introuvable."
+      });
+    }
+
+    res.render("utilisateurs/edit", {
+      utilisateur,
+      error: null
+    });
+
+  } catch (err) {
+    console.error("ERREUR GET EDIT UTILISATEUR :", err);
+
+    return res.render("utilisateurs/edit", {
+      utilisateur: null,
+      error: "Erreur interne."
+    });
+  }
+});
+
+
+router.post("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const response = await fetch(`http://localhost:3000/utilisateur/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${req.session.token}`
+      },
+      body: JSON.stringify(req.body)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return res.render("utilisateurs/edit", {
+        utilisateur: { idUtilisateur: id, ...req.body },
+        error: result.error || "Erreur lors de la mise à jour."
+      });
+    }
+
+    // Redirection après succès
+    res.redirect("/front/utilisateurs");
+
+  } catch (err) {
+    console.error("ERREUR UPDATE UTILISATEUR :", err);
+
+    res.render("utilisateurs/edit", {
+      utilisateur: { idUtilisateur: id, ...req.body },
+      error: "Erreur interne lors de la mise à jour."
+    });
+  }
+});
+
+
+
+
 
 /* ------------------------- LOGOUT -------------------------- */
 router.get("/logout", (req, res) => {

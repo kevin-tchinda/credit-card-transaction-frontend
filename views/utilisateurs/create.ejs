@@ -1,0 +1,31 @@
+<%- include("../partials/header") %>
+
+<h1>Ajouter un utilisateur</h1>
+
+<% if (error) { %>
+  <p style="color:red;"><%= error %></p>
+<% } %>
+
+<form method="POST" action="/front/utilisateurs/create">
+
+  <label>Nom :</label>
+  <input type="text" name="nom" required>
+
+  <label>Prénom :</label>
+  <input type="text" name="prenom" required>
+
+  <label>Email :</label>
+  <input type="email" name="adresseEmail" required>
+
+  <label>Téléphone :</label>
+  <input type="text" name="telephone">
+
+  <label>Mot de passe :</label>
+  <input type="password" name="motDePasse" required>
+
+  <button type="submit">Créer</button>
+</form>
+
+<a href="/front/utilisateurs">← Retour à la liste</a>
+
+<%- include("../partials/footer") %>
