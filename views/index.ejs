@@ -2,16 +2,96 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Accueil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API - Détection de Fraude</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="bg-gray-50 min-h-screen">
   <%- include('partials/header') %>
 
+  <main class="max-w-4xl mx-auto px-4 py-12">
+    <!-- En-tête simple -->
+    <div class="text-center mb-12">
+      <h1 class="text-3xl font-bold text-gray-800 mb-4">
+        API - Détection de Fraude dans les Transactions
+      </h1>
+      <p class="text-gray-600">
+        Interface frontend pour le système de détection de fraude (projet académique)
+      </p>
+    </div>
 
-  <h1>Bienvenue sur notre plateforme de détection de fraude</h1>
-  <p>Utilisez le menu pour vous connecter ou vous inscrire.</p>
+    <!-- Description du système -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">📊 Fonctionnement du système</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-medium text-gray-700 mb-2">Backend (Node.js/Express)</h3>
+          <ul class="text-gray-600 text-sm space-y-1">
+            <li>• API REST avec JWT authentication</li>
+            <li>• Modèles : Utilisateur, Transaction, Analyse, Alerte, etc..</li>
+            <li>• CRUD complet pour chaque entité</li>
+            <li>• Connexion via proxy - sur localhost:3000</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-medium text-gray-700 mb-2">Détection de fraude</h3>
+          <ul class="text-gray-600 text-sm space-y-1">
+            <li>• Score basé sur : montant, pays, heure</li>
+            <li>• Alerte automatique si score ≥ 70%</li>
+            <li>• Analyse sauvegardée dans la base</li>
+            <li>• Règles simples (À titre de simulation)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accès aux modules -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <a href="/front/dashboard" 
+         class="bg-white rounded-lg shadow p-5 hover:shadow-md transition text-center">
+        <div class="text-blue-600 text-2xl mb-3">
+          <i class="fas fa-tachometer-alt"></i>
+        </div>
+        <h3 class="font-semibold text-gray-800">Dashboard</h3>
+        <p class="text-gray-500 text-sm mt-1">Vue d'ensemble</p>
+      </a>
+
+      <a href="/front/utilisateurs" 
+         class="bg-white rounded-lg shadow p-5 hover:shadow-md transition text-center">
+        <div class="text-green-600 text-2xl mb-3">
+          <i class="fas fa-users"></i>
+        </div>
+        <h3 class="font-semibold text-gray-800">Utilisateurs</h3>
+        <p class="text-gray-500 text-sm mt-1">Gestion CRUD</p>
+      </a>
+
+      <a href="/front/transactions" 
+         class="bg-white rounded-lg shadow p-5 hover:shadow-md transition text-center">
+        <div class="text-purple-600 text-2xl mb-3">
+          <i class="fas fa-exchange-alt"></i>
+        </div>
+        <h3 class="font-semibold text-gray-800">Transactions</h3>
+        <p class="text-gray-500 text-sm mt-1">Liste et création</p>
+      </a>
+
+      <a href="/front/analyses" 
+         class="bg-white rounded-lg shadow p-5 hover:shadow-md transition text-center">
+        <div class="text-red-600 text-2xl mb-3">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h3 class="font-semibold text-gray-800">Analyses</h3>
+        <p class="text-gray-500 text-sm mt-1">Résultats de détection</p>
+      </a>
+    </div>
+
+    <!-- Note académique -->
+    <div class="mt-12 text-center text-gray-500 text-sm border-t pt-8">
+      <p>Le système utilise des règles simples pour la détection de fraude.</p>
+      <p class="mt-1">Le score de fraude est calculé sur 100% selon : montant > $1000 CAD, pays différent, heure nocturne.</p>
+    </div>
+  </main>
 
   <%- include('partials/footer') %>
-
 </body>
 </html>

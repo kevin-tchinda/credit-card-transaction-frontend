@@ -74,8 +74,108 @@ router.post("/login", async (req, res) => {
 /* ---------------------------------------------------------
    DASHBOARD
 --------------------------------------------------------- */
-router.get("/dashboard", ensureAuthenticated, (req, res) => {
-  res.render("dashboard");
+// router.get("/dashboard", ensureAuthenticated, (req, res) => {
+//   res.render("dashboard");
+// });
+
+// AMELIORATION DE LA DASHBOARD
+// ------------------------------------------------------
+/* ---------------------------------------------------------
+   DASHBOARD AVEC STATISTIQUES
+--------------------------------------------------------- */
+router.get("/dashboard", ensureAuthenticated, async (req, res) => {
+  try {
+    // Vérifiez d'abord si votre API a ces endpoints
+    // Si non, utilisez des valeurs par défaut
+    let stats = {
+      users: 0,
+      transactions: 0,
+      analyses: 0,
+      fraudRate: "0%"
+    };
+
+    try {
+      // 1. Compter les utilisateurs (si endpoint existe)
+      const usersRes = await fetch("http://localhost:3000/utilisateur", {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${req.session.token}` }
+      });
+      
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        // Adaptez selon la structure de votre réponse
+        if (Array.isArray(usersData)) {
+          stats.users = usersData.length;
+        } else if (usersData.data && Array.isArray(usersData.data)) {
+          stats.users = usersData.data.length;
+        } else if (usersData.total) {
+          stats.users = usersData.total;
+        }
+      }
+    } catch (err) {
+      console.log("Erreur compte utilisateurs:", err.message);
+    }
+
+    try {
+      // 2. Compter les transactions
+      const transactionsRes = await fetch("http://localhost:3000/transaction", {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${req.session.token}` }
+      });
+      
+      if (transactionsRes.ok) {
+        const transactionsData = await transactionsRes.json();
+        if (Array.isArray(transactionsData)) {
+          stats.transactions = transactionsData.length;
+        } else if (transactionsData.data && Array.isArray(transactionsData.data)) {
+          stats.transactions = transactionsData.data.length;
+        }
+      }
+    } catch (err) {
+      console.log("Erreur compte transactions:", err.message);
+    }
+
+    try {
+      // 3. Compter les analyses
+      const analysesRes = await fetch("http://localhost:3000/analyse", {
+        method: "GET",
+        headers: { "Authorization": `Bearer ${req.session.token}` }
+      });
+      
+      if (analysesRes.ok) {
+        const analysesData = await analysesRes.json();
+        if (Array.isArray(analysesData)) {
+          stats.analyses = analysesData.length;
+          
+          // Calculer taux de fraude si on a des analyses
+          const fraudCount = analysesData.filter(a => a.isFraude === true || a.isFraude === 1).length;
+          if (analysesData.length > 0) {
+            stats.fraudRate = ((fraudCount / analysesData.length) * 100).toFixed(1) + "%";
+          }
+        }
+      }
+    } catch (err) {
+      console.log("Erreur compte analyses:", err.message);
+    }
+
+    // Rendre avec les statistiques
+    res.render("dashboard", {
+      stats: stats,
+      // Vos variables locales existantes seront toujours là
+    });
+
+  } catch (err) {
+    console.error("Erreur dashboard:", err);
+    // Fallback : dashboard sans stats
+    res.render("dashboard", { 
+      stats: {
+        users: "N/A",
+        transactions: "N/A", 
+        analyses: "N/A",
+        fraudRate: "N/A"
+      }
+    });
+  }
 });
 
 /* =========================================================

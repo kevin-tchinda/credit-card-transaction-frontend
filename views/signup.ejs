@@ -2,37 +2,165 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Inscription</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription - Détection de Fraude</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen">
   <%- include('partials/header') %>
 
-  <h1>Créer un compte</h1>
+  <!-- Contenu principal -->
+  <main class="max-w-2xl mx-auto px-4 py-12">
+    <!-- Carte d'inscription - MÊME STYLE BLEU QUE LOGIN -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <!-- En-tête BLEUE -->
+      <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mr-4">
+            <i class="fas fa-user-plus text-2xl"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold">Créer un compte</h1>
+            <p class="text-blue-100">Rejoignez notre système de détection de fraude</p>
+          </div>
+        </div>
+      </div>
 
-  <form method="POST" action="/front/signup">
-    <label for="nom">Nom :</label>
-    <input type="text" id="nom" name="nom" required />
+      <!-- Formulaire -->
+      <div class="p-8">
+        <form method="POST" action="/front/signup" class="space-y-6">
+          <!-- Grille 2 colonnes -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Nom -->
+            <div>
+              <label for="nom" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-user mr-2 text-gray-500"></i>Nom
+              </label>
+              <input 
+                type="text" 
+                id="nom" 
+                name="nom" 
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                placeholder="Votre nom"
+              >
+            </div>
 
-    <label for="prenom">Prénom :</label>
-    <input type="text" id="prenom" name="prenom" required />
+            <!-- Prénom -->
+            <div>
+              <label for="prenom" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-user mr-2 text-gray-500"></i>Prénom
+              </label>
+              <input 
+                type="text" 
+                id="prenom" 
+                name="prenom" 
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                placeholder="Votre prénom"
+              >
+            </div>
 
-    <label for="email">Adresse email :</label>
-    <input type="email" id="email" name="adresseEmail" required />
+            <!-- Email -->
+            <div class="md:col-span-2">
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-envelope mr-2 text-gray-500"></i>Adresse email
+              </label>
+              <input 
+                type="email" 
+                id="email" 
+                name="adresseEmail" 
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                placeholder="exemple@email.com"
+              >
+            </div>
 
-    <label for="tel">Téléphone :</label>
-    <input type="text" id="tel" name="telephone" required />
+            <!-- Téléphone -->
+            <div class="md:col-span-2">
+              <label for="tel" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-phone mr-2 text-gray-500"></i>Téléphone
+              </label>
+              <input 
+                type="text" 
+                id="tel" 
+                name="telephone" 
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                placeholder="+33 1 23 45 67 89"
+              >
+            </div>
 
-    <label for="pwd">Mot de passe :</label>
-    <input type="password" id="pwd" name="motDePasse" required />
+            <!-- Mot de passe -->
+            <div class="md:col-span-2">
+              <label for="pwd" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-lock mr-2 text-gray-500"></i>Mot de passe
+              </label>
+              <input 
+                type="password" 
+                id="pwd" 
+                name="motDePasse" 
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                placeholder="Créez un mot de passe sécurisé"
+              >
+            </div>
+          </div>
 
-    <button type="submit">S’inscrire</button>
+          <!-- Bouton d'inscription BLEU -->
+          <button 
+            type="submit"
+            class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition"
+          >
+            <i class="fas fa-user-plus mr-2"></i>S'inscrire
+          </button>
 
-    <% if (error) { %>
-      <p style="color:red;"><%= error %></p>
-    <% } %>
-  </form>
+          <!-- Message d'erreur -->
+          <% if (error) { %>
+            <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div class="flex items-center">
+                <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
+                <p class="text-red-700 text-sm"><%= error %></p>
+              </div>
+            </div>
+          <% } %>
+        </form>
 
-  <p>Vous avez déjà un compte ? <a href="/front/login">Se connecter</a></p>
+        <!-- Lien vers connexion -->
+        <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+          <p class="text-gray-600">
+            Vous avez déjà un compte ?
+            <a href="/front/login" class="text-blue-600 font-semibold hover:text-blue-800 ml-2">
+              Se connecter <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </p>
+        </div>
+
+        <!-- Navigation rapide -->
+        <div class="mt-8 grid grid-cols-3 gap-3">
+          <a href="/front" class="text-center text-sm text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-50 rounded">
+            <i class="fas fa-home block text-lg mb-1"></i>
+            Accueil
+          </a>
+          <a href="/front/login" class="text-center text-sm text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-50 rounded">
+            <i class="fas fa-sign-in-alt block text-lg mb-1"></i>
+            Connexion
+          </a>
+          <a href="/front/dashboard" class="text-center text-sm text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-50 rounded">
+            <i class="fas fa-tachometer-alt block text-lg mb-1"></i>
+            Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Information système -->
+    <div class="mt-8 text-center text-sm text-gray-500">
+      <p><i class="fas fa-shield-alt mr-2"></i>Système sécurisé avec authentification JWT</p>
+      <p class="mt-1">Exercice académique - Détection de fraude dans les transactions</p>
+    </div>
+  </main>
 
   <%- include('partials/footer') %>
 </body>

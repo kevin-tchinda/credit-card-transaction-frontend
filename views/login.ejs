@@ -2,28 +2,139 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Connexion</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion - Détection de Fraude</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen flex flex-col">
+  <!-- Header simplifié -->
+  <!-- <header class="bg-white shadow-sm">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex justify-between items-center h-16">
+        <a href="/front" class="flex items-center space-x-3">
+          <div class="w-8 h-8 bg-gray-800 rounded flex items-center justify-center">
+            <i class="fas fa-shield-alt text-white text-sm"></i>
+          </div>
+          <span class="font-semibold text-gray-800">FraudEx</span>
+        </a>
+        <nav class="flex items-center space-x-6">
+          <a href="/front" class="text-gray-600 hover:text-gray-900 text-sm">Accueil</a>
+          <a href="/front/signup" class="text-blue-600 hover:text-blue-800 text-sm">Inscription</a>
+          <a href="/front/dashboard" class="text-gray-600 hover:text-gray-900 text-sm">Dashboard</a>
+        </nav>
+      </div>
+    </div>
+  </header> -->
+
+
   <%- include('partials/header') %>
 
-  <h1>Connexion</h1>
+  <!-- Contenu principal centré -->
+  <main class="flex-1 flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-md">
+      <!-- Carte de connexion -->
+      <div class="bg-white rounded-xl shadow-lg p-8">
+        <!-- En-tête -->
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+            <i class="fas fa-user-lock text-blue-600 text-2xl"></i>
+          </div>
+          <h1 class="text-2xl font-bold text-gray-800">Connexion</h1>
+          <p class="text-gray-600 mt-2">Accédez à votre tableau de bord</p>
+        </div>
 
-  <form method="POST" action="/front/login">
-    <label for="email">Adresse email :</label>
-    <input type="email" id="email" name="adresseEmail" required />
+        <!-- Formulaire -->
+        <form method="POST" action="/front/login" class="space-y-6">
+          <!-- Email -->
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="fas fa-envelope mr-2 text-gray-500"></i>Adresse email
+            </label>
+            <input 
+              type="email" 
+              id="email" 
+              name="adresseEmail" 
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              placeholder="exemple@email.com"
+            >
+          </div>
 
-    <label for="pwd">Mot de passe :</label>
-    <input type="password" id="pwd" name="motDePasse" required />
+          <!-- Mot de passe -->
+          <div>
+            <label for="pwd" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="fas fa-lock mr-2 text-gray-500"></i>Mot de passe
+            </label>
+            <input 
+              type="password" 
+              id="pwd" 
+              name="motDePasse" 
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              placeholder="Votre mot de passe"
+            >
+          </div>
 
-    <button type="submit">Se connecter</button>
+          <!-- Bouton de connexion -->
+          <button 
+            type="submit"
+            class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition"
+          >
+            <i class="fas fa-sign-in-alt mr-2"></i>Se connecter
+          </button>
 
-    <% if (error) { %>
-      <p style="color:red;"><%= error %></p>
-    <% } %>
-  </form>
+          <!-- Message d'erreur -->
+          <% if (error) { %>
+            <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div class="flex items-center">
+                <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
+                <p class="text-red-700 text-sm"><%= error %></p>
+              </div>
+            </div>
+          <% } %>
+        </form>
 
-  <p>Vous n'avez pas de compte ? <a href="/front/signup">Créer un compte</a></p>
+        <!-- Lien vers inscription -->
+        <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+          <p class="text-gray-600">
+            Vous n'avez pas de compte ?
+            <a href="/front/signup" class="text-blue-600 font-semibold hover:text-blue-800 ml-2">
+              Créer un compte <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </p>
+        </div>
+
+        <!-- Navigation rapide -->
+        <div class="mt-8 grid grid-cols-2 gap-3">
+          <a href="/front" class="text-center text-sm text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-50 rounded">
+            <i class="fas fa-home block text-lg mb-1"></i>
+            Accueil
+          </a>
+          <a href="/front/dashboard" class="text-center text-sm text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-50 rounded">
+            <i class="fas fa-tachometer-alt block text-lg mb-1"></i>
+            Dashboard
+          </a>
+        </div>
+      </div>
+
+      <!-- Information sur le système -->
+      <div class="mt-8 text-center text-sm text-gray-500">
+        <p><i class="fas fa-info-circle mr-2"></i>API - Détection de fraude</p>
+        <p class="mt-1">Utilisez vos identifiants ou créez un nouveau compte</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <!-- <footer class="bg-white border-t py-6">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center text-gray-600 text-sm">
+        <p>Exercice académique - Détection de fraude dans les transactions</p>
+        <p class="text-gray-500 text-xs mt-1">Système d'authentification JWT • Proxy middleware</p>
+      </div>
+    </div>
+  </footer> -->
 
   <%- include('partials/footer') %>
 </body>

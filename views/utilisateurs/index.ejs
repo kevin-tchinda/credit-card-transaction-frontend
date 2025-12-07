@@ -1,111 +1,253 @@
-<%- include("../partials/header") %>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des Utilisateurs - Détection de Fraude</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <%- include('../partials/header') %>
 
-<h1>Utilisateurs</h1>
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <!-- En-tête -->
+    <div class="mb-8">
+      <div class="flex flex-col md:flex-row md:items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800">Gestion des Utilisateurs</h1>
+          <p class="text-gray-600 mt-1">Liste complète des utilisateurs enregistrés</p>
+        </div>
+        
+        <!-- Bouton d'ajout -->
+        <a href="/front/utilisateurs/create" 
+           class="mt-4 md:mt-0 inline-flex items-center bg-blue-600 text-white font-medium py-2.5 px-5 rounded-lg hover:bg-blue-700 transition">
+          <i class="fas fa-user-plus mr-2"></i>
+          Ajouter un utilisateur
+        </a>
+      </div>
 
-<!-- Bouton création -->
-<a href="/front/utilisateurs/create"
-   style="display:inline-block; margin-bottom:15px;
-   padding:8px 12px; background:#3490dc; color:white;
-   border-radius:4px; text-decoration:none;">
-  + Ajouter un utilisateur
-</a>
+      <!-- Statistiques rapides -->
+      <div class="mt-6 flex items-center text-sm text-gray-500">
+        <div class="flex items-center mr-6">
+          <i class="fas fa-users mr-2 text-blue-500"></i>
+          <span>Total : 
+            <% if (Array.isArray(utilisateurs)) { %>
+              <span class="font-medium"><%= utilisateurs.length %></span> utilisateur(s)
+            <% } else { %>
+              Chargement...
+            <% } %>
+          </span>
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-file-alt mr-2 text-gray-500"></i>
+          <span>Page <span class="font-medium"><%= page %></span> sur <span class="font-medium"><%= totalPages %></span></span>
+        </div>
+      </div>
+    </div>
 
-<!-- Affichage erreur éventuelle -->
-<% if (error) { %>
-  <p style="color:red;"><%= error %></p>
-<% } %>
-
-<!-- Tableau des utilisateurs -->
-<table border="1" cellpadding="8" cellspacing="0">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nom</th>
-      <th>Prénom</th>
-      <th>Email</th>
-      <th>Téléphone</th>
-      <th>Modifier</th>
-      <th>Supprimer</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <% if (Array.isArray(utilisateurs) && utilisateurs.length > 0) { %>
-
-      <% utilisateurs.forEach(u => { %>
-        <tr>
-          <td><%= u.idUtilisateur %></td>
-          <td><%= u.nom %></td>
-          <td><%= u.prenom %></td>
-          <td><%= u.adresseEmail %></td>
-          <td><%= u.telephone %></td>
-
-          <td>
-            <a href="/front/utilisateurs/<%= u.idUtilisateur %>/edit">Modifier</a>
-          </td>
-
-          <td>
-            <form method="POST" action="/front/utilisateurs/<%= u.idUtilisateur %>/delete"
-                  onsubmit="return confirm('Supprimer cet utilisateur ?');">
-              <button type="submit">Supprimer</button>
-            </form>
-          </td>
-        </tr>
-      <% }) %>
-
-    <% } else { %>
-      <tr>
-        <td colspan="7" style="text-align:center;">
-          Aucun utilisateur trouvé.
-        </td>
-      </tr>
+    <!-- Message d'erreur -->
+    <% if (error) { %>
+      <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div class="flex items-center">
+          <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
+          <p class="text-red-700"><%= error %></p>
+        </div>
+      </div>
     <% } %>
-  </tbody>
-</table>
 
+    <!-- Tableau des utilisateurs -->
+    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                ID
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Nom
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Prénom
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Email
+              </th>
+              <th scope="col" class="px 6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Téléphone
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% if (Array.isArray(utilisateurs) && utilisateurs.length > 0) { %>
+              <% utilisateurs.forEach(u => { %>
+                <tr class="hover:bg-gray-50 transition">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    #<%= u.idUtilisateur %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    <%= u.nom %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    <%= u.prenom %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <div class="flex items-center">
+                      <i class="fas fa-envelope text-gray-400 mr-2"></i>
+                      <%= u.adresseEmail %>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <div class="flex items-center">
+                      <i class="fas fa-phone text-gray-400 mr-2"></i>
+                      <%= u.telephone %>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex items-center space-x-3">
+                      <!-- Bouton Modifier -->
+                      <a href="/front/utilisateurs/<%= u.idUtilisateur %>/edit" 
+                         class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-edit mr-1"></i>
+                        Modifier
+                      </a>
+                      
+                      <!-- Bouton Supprimer -->
+                      <form method="POST" 
+                            action="/front/utilisateurs/<%= u.idUtilisateur %>/delete" 
+                            onsubmit="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');"
+                            class="inline">
+                        <button type="submit" 
+                                class="inline-flex items-center text-red-600 hover:text-red-800">
+                          <i class="fas fa-trash-alt mr-1"></i>
+                          Supprimer
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="6" class="px-6 py-12 text-center">
+                  <div class="flex flex-col items-center justify-center">
+                    <i class="fas fa-users text-gray-300 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-500">Aucun utilisateur trouvé</h3>
+                    <p class="text-gray-400 mt-2">Commencez par ajouter un utilisateur</p>
+                    <a href="/front/utilisateurs/create" 
+                       class="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800">
+                      <i class="fas fa-plus mr-2"></i>Ajouter un utilisateur
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-<!-- PAGINATION -->
-<div style="margin-top: 25px; text-align:center;">
+    <!-- Pagination améliorée -->
+    <% if (totalPages > 1) { %>
+      <div class="mt-8 flex flex-col sm:flex-row items-center justify-between">
+        <div class="text-sm text-gray-500 mb-4 sm:mb-0">
+          Page <span class="font-medium"><%= page %></span> sur <span class="font-medium"><%= totalPages %></span>
+          • <span class="font-medium">
+            <% if (Array.isArray(utilisateurs)) { %>
+              <%= utilisateurs.length %>
+            <% } else { %>
+              0
+            <% } %>
+          </span> utilisateur(s) affiché(s)
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <!-- Bouton Précédent -->
+          <% if (page > 1) { %>
+            <a href="/front/utilisateurs?page=<%= page - 1 %>" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              <i class="fas fa-chevron-left mr-2"></i>Précédent
+            </a>
+          <% } else { %>
+            <span class="inline-flex items-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-400 bg-gray-50 cursor-not-allowed">
+              <i class="fas fa-chevron-left mr-2"></i>Précédent
+            </span>
+          <% } %>
 
-  <!-- Bouton précédent -->
-  <% if (page > 1) { %>
-    <a href="/front/utilisateurs?page=<%= page - 1 %>"
-       style="margin-right:10px;">⬅ Précédent</a>
-  <% } %>
+          <!-- Numéros de page -->
+          <div class="hidden md:flex items-center space-x-1">
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <% if (i === page) { %>
+                <span class="px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg">
+                  <%= i %>
+                </span>
+              <% } else if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) { %>
+                <a href="/front/utilisateurs?page=<%= i %>" 
+                   class="px-3 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50">
+                  <%= i %>
+                </a>
+              <% } else if (i === page - 2 || i === page + 2) { %>
+                <span class="px-2 text-gray-400">...</span>
+              <% } %>
+            <% } %>
+          </div>
 
-  <!-- Numéros de pages -->
-  <% for (let i = 1; i <= totalPages; i++) { %>
-    <% if (i === page) { %>
-      <strong style="padding:5px 10px; border:1px solid #000; margin:0 3px;"><%= i %></strong>
-    <% } else { %>
-      <a href="/front/utilisateurs?page=<%= i %>"
-         style="padding:5px 10px; border:1px solid #aaa; margin:0 3px; text-decoration:none;">
-        <%= i %>
-      </a>
+          <!-- Bouton Suivant -->
+          <% if (page < totalPages) { %>
+            <a href="/front/utilisateurs?page=<%= page + 1 %>" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+              Suivant<i class="fas fa-chevron-right ml-2"></i>
+            </a>
+          <% } else { %>
+            <span class="inline-flex items-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-400 bg-gray-50 cursor-not-allowed">
+              Suivant<i class="fas fa-chevron-right ml-2"></i>
+            </span>
+          <% } %>
+        </div>
+      </div>
     <% } %>
-  <% } %>
 
-  <!-- Bouton suivant -->
-  <% if (page < totalPages) { %>
-    <a href="/front/utilisateurs?page=<%= page + 1 %>"
-       style="margin-left:10px;">Suivant ➡</a>
-  <% } %>
+    <!-- Navigation rapide -->
+    <div class="mt-10 pt-8 border-t border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Navigation rapide</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <a href="/front/dashboard" class="flex items-center p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition">
+          <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+            <i class="fas fa-tachometer-alt text-blue-600"></i>
+          </div>
+          <div>
+            <h4 class="font-medium text-gray-800">Retour au Dashboard</h4>
+            <p class="text-gray-500 text-sm">Vue d'ensemble du système</p>
+          </div>
+        </a>
+        
+        <a href="/front/transactions" class="flex items-center p-4 bg-white border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition">
+          <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+            <i class="fas fa-exchange-alt text-green-600"></i>
+          </div>
+          <div>
+            <h4 class="font-medium text-gray-800">Gérer les Transactions</h4>
+            <p class="text-gray-500 text-sm">Liste des transactions</p>
+          </div>
+        </a>
+        
+        <a href="/front/analyses" class="flex items-center p-4 bg-white border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition">
+          <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+            <i class="fas fa-chart-line text-purple-600"></i>
+          </div>
+          <div>
+            <h4 class="font-medium text-gray-800">Voir les Analyses</h4>
+            <p class="text-gray-500 text-sm">Résultats de détection</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
 
-</div>
-
-
-
-<!-- Pagination simple -->
-<!-- <div style="margin-top:20px;">
-  <% if (page > 1) { %>
-    <a href="/front/utilisateurs?page=<%= page - 1 %>">⬅ Page précédente</a>
-  <% } %>
-
-  <span style="margin:0 10px;">Page <%= page %> / <%= totalPages %></span>
-
-  <% if (page < totalPages) { %>
-    <a href="/front/utilisateurs?page=<%= page + 1 %>">Page suivante ➡</a>
-  <% } %>
-</div> -->
-
-<%- include("../partials/footer") %>
+  <%- include('../partials/footer') %>
+</body>
+</html>

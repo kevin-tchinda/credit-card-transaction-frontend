@@ -1,17 +1,38 @@
-<header>
-  <nav>
-    <ul>
-      <li><a href="/front">Accueil</a></li>
+<header class="bg-white border-b">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="flex justify-between items-center h-14">
+      <!-- Logo minimal -->
+      <a href="/front" class="flex items-center space-x-3">
+        <div class="w-8 h-8 bg-gray-800 rounded flex items-center justify-center">
+          <i class="fas fa-shield-alt text-white text-sm"></i>
+        </div>
+        <span class="font-semibold text-gray-800">Projet Final</span>
+      </a>
 
-      <% if (isAuthenticated && user) { %>
-        <li><a href="/front/dashboard">Dashboard</a></li>
-        <li><a href="/front/logout">Déconnexion</a></li>
-        <li>Connecté : <%= user.email %></li>
-      <% } else { %>
-        <li><a href="/front/login">Connexion</a></li>
-        <li><a href="/front/signup">Inscription</a></li>
-      <% } %>
-    </ul>
-  </nav>
+      <!-- Navigation -->
+      <nav class="flex items-center space-x-6">
+        <a href="/front" class="text-gray-600 hover:text-gray-900 text-sm">Accueil</a>
+        <a href="/front/dashboard" class="text-gray-600 hover:text-gray-900 text-sm">Dashboard</a>
+        <a href="/front/transactions" class="text-gray-600 hover:text-gray-900 text-sm">Transactions</a>
+        <a href="/front/analyses" class="text-gray-600 hover:text-gray-900 text-sm">Analyses</a>
+        <a href="/front/utilisateurs" class="text-gray-600 hover:text-gray-900 text-sm">Utilisateurs</a>
+      </nav>
+
+      <!-- Auth -->
+      <div class="flex items-center space-x-4">
+        <% if (isAuthenticated && user) { %>
+          <span class="text-sm text-gray-600"><%= user.email %></span>
+          <a href="/front/logout" class="text-sm text-red-600 hover:text-red-800">
+            <i class="fas fa-sign-out-alt mr-1"></i>Déconnexion
+          </a>
+        <% } else { %>
+          <a href="/front/login" class="text-sm text-gray-600 hover:text-gray-900">Connexion</a>
+          <a href="/front/signup" class="bg-gray-800 text-white text-sm px-3 py-1.5 rounded hover:bg-gray-900">
+            Inscription
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
 </header>
-<hr />
+
