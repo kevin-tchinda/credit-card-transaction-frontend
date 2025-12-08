@@ -19,7 +19,8 @@
       <% if (user) { %>
       <div class="mt-4 flex items-center text-sm text-gray-500">
         <i class="fas fa-user-circle mr-2"></i>
-        Connecté en tant que : <span class="font-medium text-gray-700 ml-1"><%= user.email %></span>
+        Connecté en tant que : 
+        <span class="font-medium text-gray-700 ml-1"><%= user.email %></span>
       </div>
       <% } %>
     </div>
@@ -63,7 +64,7 @@
         </a>
       </div>
 
-      <!-- ✅ NOUVELLE CARTE : ALERTES -->
+      <!-- Alertes -->
       <div class="bg-white rounded-lg border p-6 hover:shadow-md transition">
         <p class="text-gray-500 text-sm font-medium">Alertes</p>
         <div class="flex items-center justify-between mt-2">
@@ -79,7 +80,9 @@
       <div class="bg-white rounded-lg border p-6 hover:shadow-md transition">
         <p class="text-gray-500 text-sm font-medium">Taux de fraude</p>
         <div class="flex items-center justify-between mt-2">
-          <span class="text-3xl font-bold text-gray-800"><%= stats?.fraudRate ?? "--%" %></span>
+          <span class="text-3xl font-bold text-gray-800">
+            <%= stats?.fraudRate ?? "--%" %>
+          </span>
           <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
         </div>
         <p class="mt-4 text-sm text-gray-500">Score ≥ 70% = fraude</p>
@@ -105,14 +108,19 @@
           <i class="fas fa-search text-purple-600 mr-3"></i> Voir les analyses
         </a>
 
-        <!-- ✅ NOUVEL ACCÈS RAPIDE ALERTES -->
         <a href="/front/alertes" class="flex items-center p-4 border rounded-lg hover:bg-red-50">
           <i class="fas fa-bell text-red-600 mr-3"></i> Voir les alertes
+        </a>
+
+        <!-- RÔLES SEULEMENT ICI -->
+        <a href="/front/roles" class="flex items-center p-4 border rounded-lg hover:bg-indigo-50">
+          <i class="fas fa-user-shield text-indigo-600 mr-3"></i> Gérer les rôles
         </a>
       </div>
 
       <div class="mt-8 pt-6 border-t">
-        <a href="/front/logout" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+        <a href="/front/logout"
+           class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
           <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
         </a>
       </div>

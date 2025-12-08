@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Créer un rôle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <%- include("../partials/header") %>
+
+  <div class="max-w-3xl mx-auto px-4 py-10">
+
+    <!-- Titre -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">Créer un rôle</h1>
+      <p class="text-gray-600 mt-1">Ajouter un nouveau rôle au système</p>
+    </div>
+
+    <!-- Erreur -->
+    <% if (error) { %>
+      <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <!-- Formulaire -->
+    <form method="POST" action="/front/roles/create"
+          class="bg-white border rounded-lg p-6 space-y-6">
+
+      <!-- Nom du rôle -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Nom du rôle
+        </label>
+        <input
+          type="text"
+          name="nomRole"
+          required
+          placeholder="Ex : Administrateur"
+          class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-indigo-200"
+        />
+      </div>
+
+      <!-- Boutons -->
+      <div class="flex justify-between pt-4">
+        <a href="/front/roles"
+           class="inline-flex items-center px-4 py-2 border rounded-lg hover:bg-gray-100">
+          Retour
+        </a>
+
+        <button type="submit"
+                class="inline-flex items-center px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+          Créer
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+  <%- include("../partials/footer") %>
+</body>
+</html>

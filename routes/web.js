@@ -3,12 +3,16 @@ import { ensureAuthenticated, redirectIfAuthenticated } from "../middleware/auth
 
 const router = express.Router();
 
-/* PAGE ACCUEIL */
+/* =========================
+   PAGE ACCUEIL
+========================= */
 router.get("/", (req, res) => {
   res.render("index");
 });
 
-/* INSCRIPTION */
+/* =========================
+   AUTH
+========================= */
 router.get("/signup", redirectIfAuthenticated, (req, res) => {
   res.render("signup", { error: null });
 });
@@ -22,21 +26,14 @@ router.post("/signup", async (req, res) => {
     });
 
     const result = await response.json();
+    if (!response.ok) return res.render("signup", { error: result.error });
 
-    if (!response.ok) {
-      return res.render("signup", {
-        error: result.error || "Erreur lors de l'inscription."
-      });
-    }
-
-    return res.redirect("/front/login");
-
+    res.redirect("/front/login");
   } catch {
-    return res.render("signup", { error: "Erreur interne lors de l'inscription." });
+    res.render("signup", { error: "Erreur interne." });
   }
 });
 
-/* CONNEXION */
 router.get("/login", redirectIfAuthenticated, (req, res) => {
   res.render("login", { error: null });
 });
@@ -50,103 +47,57 @@ router.post("/login", async (req, res) => {
     });
 
     const result = await response.json();
-
-    if (!response.ok) {
-      return res.render("login", {
-        error: result.error || "Email ou mot de passe incorrect."
-      });
-    }
+    if (!response.ok) return res.render("login", { error: result.error });
 
     req.session.token = result.token;
-    return res.redirect("/front/dashboard");
-
+    res.redirect("/front/dashboard");
   } catch {
-    return res.render("login", { error: "Erreur interne lors de la connexion." });
+    res.render("login", { error: "Erreur interne." });
   }
 });
 
-/* DASHBOARD */
+/* =========================
+   DASHBOARD
+========================= */
 router.get("/dashboard", ensureAuthenticated, async (req, res) => {
   try {
-    let stats = {
-      users: 0,
-      transactions: 0,
-      analyses: 0,
-      alertes: 0,
-      fraudRate: "0%"
-    };
+    let stats = { users: 0, transactions: 0, analyses: 0, alertes: 0, fraudRate: "0%" };
+    const headers = { Authorization: `Bearer ${req.session.token}` };
 
-    try {
-      const usersRes = await fetch("http://localhost:3000/utilisateur", {
-        headers: { "Authorization": `Bearer ${req.session.token}` }
-      });
-      if (usersRes.ok) {
-        const usersData = await usersRes.json();
-        stats.users = Array.isArray(usersData) ? usersData.length : usersData.data?.length || 0;
-      }
-    } catch {}
+    const users = await fetch("http://localhost:3000/utilisateur", { headers }).then(r => r.json());
+    const transactions = await fetch("http://localhost:3000/transaction", { headers }).then(r => r.json());
+    const analyses = await fetch("http://localhost:3000/analyse", { headers }).then(r => r.json());
+    const alertes = await fetch("http://localhost:3000/alerte", { headers }).then(r => r.json());
 
-    try {
-      const transRes = await fetch("http://localhost:3000/transaction", {
-        headers: { "Authorization": `Bearer ${req.session.token}` }
-      });
-      if (transRes.ok) {
-        const transData = await transRes.json();
-        stats.transactions = Array.isArray(transData) ? transData.length : transData.data?.length || 0;
-      }
-    } catch {}
-
-    try {
-      const anaRes = await fetch("http://localhost:3000/analyse", {
-        headers: { "Authorization": `Bearer ${req.session.token}` }
-      });
-      if (anaRes.ok) {
-        const anaData = await anaRes.json();
-        if (Array.isArray(anaData)) {
-          stats.analyses = anaData.length;
-          const frauds = anaData.filter(a => a.isFraude).length;
-          if (anaData.length > 0) {
-            stats.fraudRate = ((frauds / anaData.length) * 100).toFixed(1) + "%";
-          }
-        }
-      }
-    } catch {}
-
-    try {
-      const alertesRes = await fetch("http://localhost:3000/alerte", {
-        headers: { "Authorization": `Bearer ${req.session.token}` }
-      });
-      if (alertesRes.ok) {
-        const alertesData = await alertesRes.json();
-        if (Array.isArray(alertesData)) {
-          stats.alertes = alertesData.length;
-        }
-      }
-    } catch {}
+    if (Array.isArray(users)) stats.users = users.length;
+    if (Array.isArray(transactions)) stats.transactions = transactions.length;
+    if (Array.isArray(analyses)) {
+      stats.analyses = analyses.length;
+      const frauds = analyses.filter(a => a.isFraude).length;
+      stats.fraudRate = analyses.length ? ((frauds / analyses.length) * 100).toFixed(1) + "%" : "0%";
+    }
+    if (Array.isArray(alertes)) stats.alertes = alertes.length;
 
     res.render("dashboard", { stats });
-
   } catch {
-    res.render("dashboard", {
-      stats: {
-        users: "N/A",
-        transactions: "N/A",
-        analyses: "N/A",
-        alertes: "N/A",
-        fraudRate: "N/A"
-      }
-    });
+    res.render("dashboard", { stats: { users: "--", transactions: "--", analyses: "--", alertes: "--", fraudRate: "--" } });
   }
 });
 
-/* UTILISATEURS */
+/* =========================
+   UTILISATEURS
+========================= */
 router.get("/utilisateurs", ensureAuthenticated, async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-
   try {
-    const response = await fetch(`http://localhost:3000/utilisateur?page=${page}&limit=10`, {
-      headers: { "Authorization": `Bearer ${req.session.token}` }
-    });
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+
+    const response = await fetch(
+      `http://localhost:3000/utilisateur?page=${page}&limit=${limit}`,
+      {
+        headers: { Authorization: `Bearer ${req.session.token}` }
+      }
+    );
 
     const result = await response.json();
 
@@ -157,7 +108,7 @@ router.get("/utilisateurs", ensureAuthenticated, async (req, res) => {
       error: null
     });
 
-  } catch {
+  } catch (error) {
     res.render("utilisateurs/index", {
       utilisateurs: [],
       page: 1,
@@ -167,14 +118,102 @@ router.get("/utilisateurs", ensureAuthenticated, async (req, res) => {
   }
 });
 
-/* TRANSACTIONS */
-router.get("/transactions", ensureAuthenticated, async (req, res) => {
-  try {
-    const page = req.query.page || 1;
+router.get("/utilisateurs/create", ensureAuthenticated, (req, res) => {
+  res.render("utilisateurs/create", { error: null });
+});
 
-    const response = await fetch(`http://localhost:3000/transaction?page=${page}`, {
-      headers: { "Authorization": `Bearer ${req.session.token}` }
+router.post("/utilisateurs/create", ensureAuthenticated, async (req, res) => {
+  try {
+    const response = await fetch("http://localhost:3000/utilisateur", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${req.session.token}`
+      },
+      body: JSON.stringify(req.body)
     });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return res.render("utilisateurs/create", {
+        error: result.error || "Erreur lors de la création."
+      });
+    }
+
+    res.redirect("/front/utilisateurs");
+
+  } catch {
+    res.render("utilisateurs/create", { error: "Erreur interne." });
+  }
+});
+
+router.get("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
+  const response = await fetch(`http://localhost:3000/utilisateur/${req.params.id}`, {
+    headers: { Authorization: `Bearer ${req.session.token}` }
+  });
+  const utilisateur = await response.json();
+  res.render("utilisateurs/edit", { utilisateur, error: null });
+});
+
+router.post("/utilisateurs/:id/edit", ensureAuthenticated, async (req, res) => {
+  try {
+    const response = await fetch(`http://localhost:3000/utilisateur/${req.params.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${req.session.token}`
+      },
+      body: JSON.stringify(req.body)   //
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return res.render("utilisateurs/edit", {
+        utilisateur: { idUtilisateur: req.params.id, ...req.body },
+        error: result.error || "Erreur lors de la mise à jour."
+      });
+    }
+
+    res.redirect("/front/utilisateurs");
+
+  } catch (error) {
+    res.render("utilisateurs/edit", {
+      utilisateur: { idUtilisateur: req.params.id, ...req.body },
+      error: "Erreur interne."
+    });
+  }
+});
+
+
+router.get("/utilisateurs/:id", ensureAuthenticated, async (req, res) => {
+  const response = await fetch(`http://localhost:3000/utilisateur/${req.params.id}`, {
+    headers: { Authorization: `Bearer ${req.session.token}` }
+  });
+  const utilisateur = await response.json();
+  res.render("utilisateurs/detail", { utilisateur, error: null });
+});
+
+/* =========================
+   TRANSACTIONS
+========================= */
+/* =========================
+   TRANSACTIONS AVEC PAGINATION
+========================= */
+router.get("/transactions", ensureAuthenticated, async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+
+  try {
+    const response = await fetch(
+      `http://localhost:3000/transaction?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Bearer ${req.session.token}`
+        }
+      }
+    );
 
     const result = await response.json();
 
@@ -185,7 +224,9 @@ router.get("/transactions", ensureAuthenticated, async (req, res) => {
       error: null
     });
 
-  } catch {
+  } catch (error) {
+    console.error("Erreur chargement transactions :", error);
+
     res.render("transactions/index", {
       transactions: [],
       page: 1,
@@ -195,30 +236,91 @@ router.get("/transactions", ensureAuthenticated, async (req, res) => {
   }
 });
 
-/* ANALYSES */
-router.get("/analyses", ensureAuthenticated, async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 10;
 
-    const response = await fetch(
-      `http://localhost:3000/analyse?page=${page}&limit=${limit}`,
-      { headers: { "Authorization": `Bearer ${req.session.token}` } }
-    );
+router.get("/transactions/create", ensureAuthenticated, (req, res) => {
+  res.render("transactions/create", { error: null });
+});
+
+router.post("/transactions/create", ensureAuthenticated, async (req, res) => {
+  try {
+    const response = await fetch("http://localhost:3000/transaction", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${req.session.token}`
+      },
+      body: JSON.stringify(req.body)
+    });
 
     const result = await response.json();
 
-    let analyses = [];
-    let totalPages = 1;
-
-    if (Array.isArray(result)) {
-      analyses = result;
-    } else {
-      analyses = result.data || [];
-      totalPages = result.totalPages || 1;
+    if (!response.ok) {
+      return res.render("transactions/create", {
+        error: result.error || "Erreur lors de la création."
+      });
     }
 
-    res.render("analyses/index", { analyses, page, totalPages, error: null });
+    res.redirect("/front/transactions");
+
+  } catch {
+    res.render("transactions/create", { error: "Erreur interne." });
+  }
+});
+
+router.get("/transactions/:id/edit", ensureAuthenticated, async (req, res) => {
+  const response = await fetch(`http://localhost:3000/transaction/${req.params.id}`, {
+    headers: { Authorization: `Bearer ${req.session.token}` }
+  });
+  const transaction = await response.json();
+  res.render("transactions/edit", { transaction, error: null });
+});
+
+router.post("/transactions/:id/edit", ensureAuthenticated, async (req, res) => {
+  const response = await fetch(`http://localhost:3000/transaction/${req.params.id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${req.session.token}`
+    },
+    body: JSON.stringify(req.body)
+  });
+  if (!response.ok) {
+    return res.render("transactions/edit", {
+      transaction: { idTransaction: req.params.id, ...req.body },
+      error: "Erreur mise à jour."
+    });
+  }
+  res.redirect("/front/transactions");
+});
+
+router.get("/transactions/:id", ensureAuthenticated, async (req, res) => {
+  const response = await fetch(`http://localhost:3000/transaction/${req.params.id}`, {
+    headers: { Authorization: `Bearer ${req.session.token}` }
+  });
+  const transaction = await response.json();
+  res.render("transactions/detail", { transaction, error: null });
+});
+
+
+/* =========================
+   ANALYSES (CORRECTION)
+========================= */
+router.get("/analyses", ensureAuthenticated, async (req, res) => {
+  try {
+    const response = await fetch("http://localhost:3000/analyse", {
+      headers: { Authorization: `Bearer ${req.session.token}` }
+    });
+
+    const result = await response.json();
+
+    const analyses = Array.isArray(result) ? result : result.data || [];
+
+    res.render("analyses/index", {
+      analyses,
+      page: 1,
+      totalPages: 1,
+      error: null
+    });
 
   } catch {
     res.render("analyses/index", {
@@ -234,65 +336,118 @@ router.get("/analyses/:id", ensureAuthenticated, async (req, res) => {
   try {
     const response = await fetch(
       `http://localhost:3000/analyse/${req.params.id}`,
-      { headers: { "Authorization": `Bearer ${req.session.token}` } }
+      { headers: { Authorization: `Bearer ${req.session.token}` } }
     );
 
     const analyse = await response.json();
 
-    if (analyse.error) {
-      return res.render("analyses/detail", { analyse: null, error: analyse.error });
-    }
-
-    res.render("analyses/detail", { analyse, error: null });
+    res.render("analyses/detail", {
+      analyse,
+      error: null
+    });
 
   } catch {
-    res.render("analyses/detail", { analyse: null, error: "Impossible de charger l'analyse." });
+    res.render("analyses/detail", {
+      analyse: null,
+      error: "Impossible de charger l’analyse."
+    });
   }
 });
 
-/* ALERTES */
+
+
+/* =========================
+   ALERTES
+========================= */
 router.get("/alertes", ensureAuthenticated, async (req, res) => {
-  try {
-    const response = await fetch("http://localhost:3000/alerte", {
-      headers: { "Authorization": `Bearer ${req.session.token}` }
-    });
-
-    const alertes = await response.json();
-
-    res.render("alertes/index", { alertes, error: null });
-
-  } catch {
-    res.render("alertes/index", {
-      alertes: [],
-      error: "Impossible de charger les alertes."
-    });
-  }
+  const response = await fetch("http://localhost:3000/alerte", {
+    headers: { Authorization: `Bearer ${req.session.token}` }
+  });
+  const alertes = await response.json();
+  res.render("alertes/index", { alertes, error: null });
 });
 
 router.get("/alertes/:id", ensureAuthenticated, async (req, res) => {
-  try {
-    const response = await fetch(
-      `http://localhost:3000/alerte/${req.params.id}`,
-      { headers: { "Authorization": `Bearer ${req.session.token}` } }
-    );
-
-    const alerte = await response.json();
-
-    res.render("alertes/detail", { alerte, error: null });
-
-  } catch {
-    res.render("alertes/detail", {
-      alerte: null,
-      error: "Impossible de charger l’alerte."
-    });
-  }
+  const response = await fetch(`http://localhost:3000/alerte/${req.params.id}`, {
+    headers: { Authorization: `Bearer ${req.session.token}` }
+  });
+  const alerte = await response.json();
+  res.render("alertes/detail", { alerte, error: null });
 });
 
-/* DÉCONNEXION */
-router.get("/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.redirect("/front/login");
+/* =========================
+   ROLES
+========================= */
+router.get("/roles", ensureAuthenticated, async (req, res) => {
+  const response = await fetch("http://localhost:3000/role", {
+    headers: { Authorization: `Bearer ${req.session.token}` }
   });
+  const roles = await response.json();
+  res.render("roles/index", { roles, error: null });
+});
+
+router.get("/roles/create", ensureAuthenticated, (req, res) => {
+  res.render("roles/create", { error: null });
+});
+
+router.post("/roles/create", ensureAuthenticated, async (req, res) => {
+  const response = await fetch("http://localhost:3000/role", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${req.session.token}`
+    },
+    body: JSON.stringify(req.body)
+  });
+
+  const result = await response.json();
+  if (!response.ok) return res.render("roles/create", { error: result.error });
+
+  res.redirect("/front/roles");
+});
+
+router.get("/roles/:id/edit", ensureAuthenticated, async (req, res) => {
+  const response = await fetch(`http://localhost:3000/role/${req.params.id}`, {
+    headers: { Authorization: `Bearer ${req.session.token}` }
+  });
+  const role = await response.json();
+  res.render("roles/edit", { role, error: null });
+});
+
+router.post("/roles/:id/edit", ensureAuthenticated, async (req, res) => {
+  await fetch(`http://localhost:3000/role/${req.params.id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${req.session.token}`
+    },
+    body: JSON.stringify(req.body)
+  });
+
+  res.redirect("/front/roles");
+});
+
+router.get("/roles/:id", ensureAuthenticated, async (req, res) => {
+  const response = await fetch(`http://localhost:3000/role/${req.params.id}`, {
+    headers: { Authorization: `Bearer ${req.session.token}` }
+  });
+  const role = await response.json();
+  res.render("roles/detail", { role, error: null });
+});
+
+router.post("/roles/:id/delete", ensureAuthenticated, async (req, res) => {
+  await fetch(`http://localhost:3000/role/${req.params.id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${req.session.token}` }
+  });
+  res.redirect("/front/roles");
+});
+
+/* =========================
+   LOGOUT
+========================= */
+router.get("/logout", (req, res) => {
+  req.session.destroy(() => res.redirect("/front/login"));
 });
 
 export default router;
