@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Alertes - Détection de Fraude</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <%- include("../partials/header") %>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">
+
+    <!-- En-tête -->
+    <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">Alertes de sécurité</h1>
+        <p class="text-gray-600 mt-1">Liste des alertes générées par le système</p>
+      </div>
+
+      <a href="/front/dashboard"
+         class="mt-4 md:mt-0 inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition">
+        <i class="fas fa-arrow-left mr-2"></i> Retour dashboard
+      </a>
+    </div>
+
+    <!-- Erreur -->
+    <% if (error) { %>
+      <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p class="text-red-700">
+          <i class="fas fa-exclamation-circle mr-2"></i><%= error %>
+        </p>
+      </div>
+    <% } %>
+
+    <!-- Tableau des alertes -->
+    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Alerte</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Analyse</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Message</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Niveau</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+            </tr>
+          </thead>
+
+          <tbody class="bg-white divide-y divide-gray-200">
+
+            <% if (!Array.isArray(alertes) || alertes.length === 0) { %>
+              <tr>
+                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                  <i class="fas fa-bell text-4xl mb-4 text-gray-300"></i>
+                  <p>Aucune alerte trouvée</p>
+                </td>
+              </tr>
+            <% } else { %>
+
+              <% alertes.forEach(a => { %>
+                <tr class="hover:bg-gray-50 transition">
+
+                  <!-- ID -->
+                  <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                    #<%= a.idAlerte %>
+                  </td>
+
+                  <!-- ID Analyse -->
+                  <td class="px-6 py-4 text-sm text-gray-700">
+                    <i class="fas fa-chart-line mr-2 text-gray-400"></i>
+                    <%= a.idAnalyse %>
+                  </td>
+
+                  <!-- Message -->
+                  <td class="px-6 py-4 text-sm text-gray-700">
+                    <%= a.message %>
+                  </td>
+
+                  <!-- Niveau -->
+                  <td class="px-6 py-4">
+                    <% if (a.niveau === "élevé" || a.niveau === "eleve") { %>
+                      <span class="inline-flex items-center px-3 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> Élevé
+                      </span>
+                    <% } else { %>
+                      <span class="inline-flex items-center px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+                        <i class="fas fa-exclamation-circle mr-1"></i> Moyen
+                      </span>
+                    <% } %>
+                  </td>
+
+                  <!-- Date -->
+                  <td class="px-6 py-4 text-sm text-gray-600">
+                    <%
+                      const date = new Date(a.dateCreation);
+                      const formattedDate = date.toLocaleDateString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      });
+                    %>
+                    <i class="fas fa-calendar mr-2 text-gray-400"></i>
+                    <%= formattedDate %>
+                  </td>
+
+                  <!-- Action -->
+                  <td class="px-6 py-4 text-sm font-medium">
+                    <a href="/front/alertes/<%= a.idAlerte %>"
+                       class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                      <i class="fas fa-eye mr-1"></i> Voir
+                    </a>
+                  </td>
+
+                </tr>
+              <% }) %>
+
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <%- include("../partials/footer") %>
+</body>
+</html>

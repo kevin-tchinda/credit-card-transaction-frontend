@@ -3,16 +3,12 @@ import { ensureAuthenticated, redirectIfAuthenticated } from "../middleware/auth
 
 const router = express.Router();
 
-/* ---------------------------------------------------------
-   PAGE ACCUEIL
---------------------------------------------------------- */
+/* PAGE ACCUEIL */
 router.get("/", (req, res) => {
   res.render("index");
 });
 
-/* ---------------------------------------------------------
-   INSCRIPTION
---------------------------------------------------------- */
+/* INSCRIPTION */
 router.get("/signup", redirectIfAuthenticated, (req, res) => {
   res.render("signup", { error: null });
 });
@@ -35,14 +31,12 @@ router.post("/signup", async (req, res) => {
 
     return res.redirect("/front/login");
 
-  } catch (err) {
+  } catch {
     return res.render("signup", { error: "Erreur interne lors de l'inscription." });
   }
 });
 
-/* ---------------------------------------------------------
-   CONNEXION
---------------------------------------------------------- */
+/* CONNEXION */
 router.get("/login", redirectIfAuthenticated, (req, res) => {
   res.render("login", { error: null });
 });
@@ -66,17 +60,21 @@ router.post("/login", async (req, res) => {
     req.session.token = result.token;
     return res.redirect("/front/dashboard");
 
-  } catch (err) {
+  } catch {
     return res.render("login", { error: "Erreur interne lors de la connexion." });
   }
 });
 
-/* ---------------------------------------------------------
-   DASHBOARD
---------------------------------------------------------- */
+/* DASHBOARD */
 router.get("/dashboard", ensureAuthenticated, async (req, res) => {
   try {
-    let stats = { users: 0, transactions: 0, analyses: 0, fraudRate: "0%" };
+    let stats = {
+      users: 0,
+      transactions: 0,
+      analyses: 0,
+      alertes: 0,
+      fraudRate: "0%"
+    };
 
     try {
       const usersRes = await fetch("http://localhost:3000/utilisateur", {
@@ -114,19 +112,34 @@ router.get("/dashboard", ensureAuthenticated, async (req, res) => {
       }
     } catch {}
 
+    try {
+      const alertesRes = await fetch("http://localhost:3000/alerte", {
+        headers: { "Authorization": `Bearer ${req.session.token}` }
+      });
+      if (alertesRes.ok) {
+        const alertesData = await alertesRes.json();
+        if (Array.isArray(alertesData)) {
+          stats.alertes = alertesData.length;
+        }
+      }
+    } catch {}
+
     res.render("dashboard", { stats });
 
-  } catch (err) {
+  } catch {
     res.render("dashboard", {
-      stats: { users: "N/A", transactions: "N/A", analyses: "N/A", fraudRate: "N/A" }
+      stats: {
+        users: "N/A",
+        transactions: "N/A",
+        analyses: "N/A",
+        alertes: "N/A",
+        fraudRate: "N/A"
+      }
     });
   }
 });
 
-/* =========================================================
-   UTILISATEURS
-========================================================= */
-
+/* UTILISATEURS */
 router.get("/utilisateurs", ensureAuthenticated, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
 
@@ -154,10 +167,7 @@ router.get("/utilisateurs", ensureAuthenticated, async (req, res) => {
   }
 });
 
-/* =========================================================
-   TRANSACTIONS
-========================================================= */
-
+/* TRANSACTIONS */
 router.get("/transactions", ensureAuthenticated, async (req, res) => {
   try {
     const page = req.query.page || 1;
@@ -185,10 +195,7 @@ router.get("/transactions", ensureAuthenticated, async (req, res) => {
   }
 });
 
-/* =========================================================
-   ✅ ANALYSES — VERSION CORRIGÉE QUI FONCTIONNE AVEC TOUS LES CAS
-========================================================= */
-
+/* ANALYSES */
 router.get("/analyses", ensureAuthenticated, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -196,32 +203,22 @@ router.get("/analyses", ensureAuthenticated, async (req, res) => {
 
     const response = await fetch(
       `http://localhost:3000/analyse?page=${page}&limit=${limit}`,
-      {
-        headers: { "Authorization": `Bearer ${req.session.token}` }
-      }
+      { headers: { "Authorization": `Bearer ${req.session.token}` } }
     );
 
     const result = await response.json();
-
-    console.log("ANALYSES REÇUES:", result);
 
     let analyses = [];
     let totalPages = 1;
 
     if (Array.isArray(result)) {
       analyses = result;
-      totalPages = 1;
     } else {
       analyses = result.data || [];
       totalPages = result.totalPages || 1;
     }
 
-    res.render("analyses/index", {
-      analyses,
-      page,
-      totalPages,
-      error: null
-    });
+    res.render("analyses/index", { analyses, page, totalPages, error: null });
 
   } catch {
     res.render("analyses/index", {
@@ -237,33 +234,61 @@ router.get("/analyses/:id", ensureAuthenticated, async (req, res) => {
   try {
     const response = await fetch(
       `http://localhost:3000/analyse/${req.params.id}`,
-      {
-        headers: { "Authorization": `Bearer ${req.session.token}` }
-      }
+      { headers: { "Authorization": `Bearer ${req.session.token}` } }
     );
 
     const analyse = await response.json();
 
     if (analyse.error) {
-      return res.render("analyses/detail", {
-        analyse: null,
-        error: analyse.error
-      });
+      return res.render("analyses/detail", { analyse: null, error: analyse.error });
     }
 
     res.render("analyses/detail", { analyse, error: null });
 
   } catch {
-    res.render("analyses/detail", {
-      analyse: null,
-      error: "Impossible de charger l'analyse."
+    res.render("analyses/detail", { analyse: null, error: "Impossible de charger l'analyse." });
+  }
+});
+
+/* ALERTES */
+router.get("/alertes", ensureAuthenticated, async (req, res) => {
+  try {
+    const response = await fetch("http://localhost:3000/alerte", {
+      headers: { "Authorization": `Bearer ${req.session.token}` }
+    });
+
+    const alertes = await response.json();
+
+    res.render("alertes/index", { alertes, error: null });
+
+  } catch {
+    res.render("alertes/index", {
+      alertes: [],
+      error: "Impossible de charger les alertes."
     });
   }
 });
 
-/* ---------------------------------------------------------
-   DÉCONNEXION
---------------------------------------------------------- */
+router.get("/alertes/:id", ensureAuthenticated, async (req, res) => {
+  try {
+    const response = await fetch(
+      `http://localhost:3000/alerte/${req.params.id}`,
+      { headers: { "Authorization": `Bearer ${req.session.token}` } }
+    );
+
+    const alerte = await response.json();
+
+    res.render("alertes/detail", { alerte, error: null });
+
+  } catch {
+    res.render("alertes/detail", {
+      alerte: null,
+      error: "Impossible de charger l’alerte."
+    });
+  }
+});
+
+/* DÉCONNEXION */
 router.get("/logout", (req, res) => {
   req.session.destroy(() => {
     res.redirect("/front/login");

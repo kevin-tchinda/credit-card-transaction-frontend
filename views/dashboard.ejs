@@ -25,226 +25,96 @@
     </div>
 
     <!-- Statistiques principales -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-      <!-- Carte : Utilisateurs -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
+
+      <!-- Utilisateurs -->
       <div class="bg-white rounded-lg border p-6 hover:shadow-md transition">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-gray-500 text-sm font-medium">Utilisateurs</p>
-            <div class="flex items-baseline mt-2">
-              <span class="text-3xl font-bold text-gray-800">
-                <% if (stats && stats.users !== undefined) { %>
-                  <%= stats.users %>
-                <% } else { %>
-                  --
-                <% } %>
-              </span>
-              <span class="text-gray-500 text-sm ml-2">enregistrés</span>
-            </div>
-          </div>
-          <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-            <i class="fas fa-users text-blue-600 text-xl"></i>
-          </div>
+        <p class="text-gray-500 text-sm font-medium">Utilisateurs</p>
+        <div class="flex items-center justify-between mt-2">
+          <span class="text-3xl font-bold text-gray-800"><%= stats?.users ?? "--" %></span>
+          <i class="fas fa-users text-blue-600 text-xl"></i>
         </div>
         <a href="/front/utilisateurs" class="mt-4 inline-flex items-center text-sm text-blue-600 hover:text-blue-800">
-          <i class="fas fa-arrow-right mr-1"></i> Gérer les utilisateurs
+          Gérer
         </a>
       </div>
 
-      <!-- Carte : Transactions -->
+      <!-- Transactions -->
       <div class="bg-white rounded-lg border p-6 hover:shadow-md transition">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-gray-500 text-sm font-medium">Transactions</p>
-            <div class="flex items-baseline mt-2">
-              <span class="text-3xl font-bold text-gray-800">
-                <% if (stats && stats.transactions !== undefined) { %>
-                  <%= stats.transactions %>
-                <% } else { %>
-                  --
-                <% } %>
-              </span>
-              <span class="text-gray-500 text-sm ml-2">effectuées</span>
-            </div>
-          </div>
-          <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
-            <i class="fas fa-exchange-alt text-green-600 text-xl"></i>
-          </div>
+        <p class="text-gray-500 text-sm font-medium">Transactions</p>
+        <div class="flex items-center justify-between mt-2">
+          <span class="text-3xl font-bold text-gray-800"><%= stats?.transactions ?? "--" %></span>
+          <i class="fas fa-exchange-alt text-green-600 text-xl"></i>
         </div>
         <a href="/front/transactions" class="mt-4 inline-flex items-center text-sm text-green-600 hover:text-green-800">
-          <i class="fas fa-arrow-right mr-1"></i> Voir toutes
+          Voir
         </a>
       </div>
 
-      <!-- Carte : Analyses -->
+      <!-- Analyses -->
       <div class="bg-white rounded-lg border p-6 hover:shadow-md transition">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-gray-500 text-sm font-medium">Analyses</p>
-            <div class="flex items-baseline mt-2">
-              <span class="text-3xl font-bold text-gray-800">
-                <% if (stats && stats.analyses !== undefined) { %>
-                  <%= stats.analyses %>
-                <% } else { %>
-                  --
-                <% } %>
-              </span>
-              <span class="text-gray-500 text-sm ml-2">réalisées</span>
-            </div>
-          </div>
-          <div class="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
-            <i class="fas fa-chart-line text-purple-600 text-xl"></i>
-          </div>
+        <p class="text-gray-500 text-sm font-medium">Analyses</p>
+        <div class="flex items-center justify-between mt-2">
+          <span class="text-3xl font-bold text-gray-800"><%= stats?.analyses ?? "--" %></span>
+          <i class="fas fa-chart-line text-purple-600 text-xl"></i>
         </div>
         <a href="/front/analyses" class="mt-4 inline-flex items-center text-sm text-purple-600 hover:text-purple-800">
-          <i class="fas fa-arrow-right mr-1"></i> Consulter
+          Consulter
         </a>
       </div>
 
-      <!-- Carte : Taux de fraude -->
+      <!-- ✅ NOUVELLE CARTE : ALERTES -->
       <div class="bg-white rounded-lg border p-6 hover:shadow-md transition">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-gray-500 text-sm font-medium">Taux de fraude</p>
-            <div class="flex items-baseline mt-2">
-              <span class="text-3xl font-bold text-gray-800">
-                <% if (stats && stats.fraudRate) { %>
-                  <%= stats.fraudRate %>
-                <% } else { %>
-                  --%
-                <% } %>
-              </span>
-              <span class="text-gray-500 text-sm ml-2">moyen</span>
-            </div>
-          </div>
-          <div class="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center">
-            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
-          </div>
+        <p class="text-gray-500 text-sm font-medium">Alertes</p>
+        <div class="flex items-center justify-between mt-2">
+          <span class="text-3xl font-bold text-gray-800"><%= stats?.alertes ?? "--" %></span>
+          <i class="fas fa-bell text-red-600 text-xl"></i>
         </div>
-        <div class="mt-4 text-sm text-gray-500">
-          Score ≥ 70% = fraude
+        <a href="/front/alertes" class="mt-4 inline-flex items-center text-sm text-red-600 hover:text-red-800">
+          Voir
+        </a>
+      </div>
+
+      <!-- Taux de fraude -->
+      <div class="bg-white rounded-lg border p-6 hover:shadow-md transition">
+        <p class="text-gray-500 text-sm font-medium">Taux de fraude</p>
+        <div class="flex items-center justify-between mt-2">
+          <span class="text-3xl font-bold text-gray-800"><%= stats?.fraudRate ?? "--%" %></span>
+          <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
         </div>
+        <p class="mt-4 text-sm text-gray-500">Score ≥ 70% = fraude</p>
       </div>
     </div>
 
-    <!-- Deux colonnes -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- Section : Comment ça marche -->
-      <div class="bg-white rounded-lg border p-6">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">
-          <i class="fas fa-cogs mr-2 text-blue-600"></i>Comment fonctionne la détection ?
-        </h2>
-        
-        <div class="space-y-4">
-          <div class="flex items-start">
-            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-1">
-              <span class="text-blue-600 font-bold">1</span>
-            </div>
-            <div>
-              <h3 class="font-medium text-gray-800">Montant de la transaction</h3>
-              <p class="text-gray-600 text-sm">> $1000 = +40 points, > $5000 = +70 points</p>
-            </div>
-          </div>
+    <!-- Actions rapides -->
+    <div class="bg-white rounded-lg border p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">
+        <i class="fas fa-bolt mr-2 text-green-600"></i>Actions rapides
+      </h2>
 
-          <div class="flex items-start">
-            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1">
-              <span class="text-green-600 font-bold">2</span>
-            </div>
-            <div>
-              <h3 class="font-medium text-gray-800">Pays différent</h3>
-              <p class="text-gray-600 text-sm">Pays transaction ≠ pays utilisateur = +30 points</p>
-            </div>
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <a href="/front/transactions/create" class="flex items-center p-4 border rounded-lg hover:bg-blue-50">
+          <i class="fas fa-plus text-blue-600 mr-3"></i> Créer une transaction
+        </a>
 
-          <div class="flex items-start">
-            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3 mt-1">
-              <span class="text-red-600 font-bold">3</span>
-            </div>
-            <div>
-              <h3 class="font-medium text-gray-800">Heure nocturne</h3>
-              <p class="text-gray-600 text-sm">Entre 0h et 5h = +20 points</p>
-            </div>
-          </div>
+        <a href="/front/utilisateurs/create" class="flex items-center p-4 border rounded-lg hover:bg-green-50">
+          <i class="fas fa-user-plus text-green-600 mr-3"></i> Ajouter un utilisateur
+        </a>
 
-          <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p class="text-sm text-gray-700">
-              <span class="font-medium">Score total = somme des points (max 100)</span><br>
-              <span class="text-red-600 font-medium">Score ≥ 70 → transaction marquée comme fraude</span>
-            </p>
-          </div>
-        </div>
+        <a href="/front/analyses" class="flex items-center p-4 border rounded-lg hover:bg-purple-50">
+          <i class="fas fa-search text-purple-600 mr-3"></i> Voir les analyses
+        </a>
+
+        <!-- ✅ NOUVEL ACCÈS RAPIDE ALERTES -->
+        <a href="/front/alertes" class="flex items-center p-4 border rounded-lg hover:bg-red-50">
+          <i class="fas fa-bell text-red-600 mr-3"></i> Voir les alertes
+        </a>
       </div>
 
-      <!-- Section : Actions rapides -->
-      <div class="bg-white rounded-lg border p-6">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">
-          <i class="fas fa-bolt mr-2 text-green-600"></i>Actions rapides
-        </h2>
-        
-        <div class="space-y-4">
-          <a href="/front/transactions/create" 
-             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-200 transition">
-            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-              <i class="fas fa-plus text-blue-600"></i>
-            </div>
-            <div>
-              <h3 class="font-medium text-gray-800">Créer une transaction</h3>
-              <p class="text-gray-600 text-sm">Ajouter une nouvelle transaction manuellement</p>
-            </div>
-          </a>
-
-          <a href="/front/utilisateurs/create" 
-             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-200 transition">
-            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-              <i class="fas fa-user-plus text-green-600"></i>
-            </div>
-            <div>
-              <h3 class="font-medium text-gray-800">Ajouter un utilisateur</h3>
-              <p class="text-gray-600 text-sm">Créer un nouveau compte utilisateur</p>
-            </div>
-          </a>
-
-          <a href="/front/analyses" 
-             class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-200 transition">
-            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-              <i class="fas fa-search text-purple-600"></i>
-            </div>
-            <div>
-              <h3 class="font-medium text-gray-800">Vérifier les analyses</h3>
-              <p class="text-gray-600 text-sm">Consulter les résultats de détection</p>
-            </div>
-          </a>
-        </div>
-
-        <!-- Votre contenu original -->
-        <div class="mt-8 pt-6 border-t">
-          <p class="text-gray-700 mb-4">Vous êtes connecté.</p>
-          <a href="/front/logout" 
-             class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-            <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Note technique -->
-    <div class="mt-10 p-4 bg-gray-50 rounded-lg border border-gray-200">
-      <div class="flex items-start">
-        <i class="fas fa-info-circle text-gray-500 mt-0.5 mr-3"></i>
-        <div class="text-sm text-gray-600">
-          <p class="font-medium mb-1">Statistiques en direct :</p>
-          <p>
-            <% if (stats && stats.users !== undefined) { %>
-              Les données sont récupérées depuis l'API backend en temps réel.
-            <% } else { %>
-              Les statistiques seront automatiquement remplies depuis le backend.
-            <% } %>
-          </p>
-          <p class="mt-1">
-            API Backend : <code class="text-gray-800 bg-gray-100 px-1 rounded">http://localhost:3000/</code>
-            (proxifié via <code class="text-gray-800 bg-gray-100 px-1 rounded">/front</code>)
-          </p>
-        </div>
+      <div class="mt-8 pt-6 border-t">
+        <a href="/front/logout" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+          <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+        </a>
       </div>
     </div>
   </div>
