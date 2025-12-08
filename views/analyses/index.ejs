@@ -1,77 +1,150 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Liste des analyses</title>
+  <title>Analyses - Détection de Fraude</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="bg-gray-50 min-h-screen">
+  <%- include("../partials/header") %>
 
-  <%- include("../partials/menu"); %>
+  <main class="max-w-7xl mx-auto px-4 py-8">
 
-  <h1>Liste des analyses</h1>
+    <!-- En-tête -->
+    <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">Analyses de fraude</h1>
+        <p class="text-gray-600 mt-1">Liste des résultats d’analyses</p>
+      </div>
 
-  <% if (error) { %>
-    <p style="color:red"><%= error %></p>
-  <% } %>
+      <a href="/front/dashboard"
+         class="mt-4 md:mt-0 inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition">
+        <i class="fas fa-arrow-left mr-2"></i> Retour dashboard
+      </a>
+    </div>
 
-  <table border="1" cellpadding="8" cellspacing="0" width="100%">
-    <thead>
-      <tr>
-        <th>ID Analyse</th>
-        <th>ID Transaction</th>
-        <th>Score (%)</th>
-        <th>Décision</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <% if (analyses.length === 0) { %>
-        <tr>
-          <td colspan="5" style="text-align:center;">Aucune analyse trouvée</td>
-        </tr>
-      <% } else { %>
-
-        <% analyses.forEach(a => { %>
-          <tr>
-            <td><%= a.idAnalyse %></td>
-            <td><%= a.idTransaction %></td>
-            <td><%= a.probabiliteFraude %></td>
-            <td>
-              <% if (a.isFraude) { %>
-                Frauduleuse
-              <% } else { %>
-                Normale
-              <% } %>
-            </td>
-            <td>
-              <a href="/front/analyses/<%= a.idAnalyse %>">Voir</a>
-            </td>
-          </tr>
-        <% }) %>
-
-      <% } %>
-    </tbody>
-  </table>
-
-  <br>
-
-  <!-- PAGINATION -->
-  <div style="margin-top: 10px;">
-    <p>Page <%= page %> / <%= totalPages %></p>
-
-    <% if (page > 1) { %>
-      <a href="/front/analyses?page=<%= page - 1 %>">Page précédente</a>
+    <!-- Erreur -->
+    <% if (error) { %>
+      <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p class="text-red-700"><i class="fas fa-exclamation-circle mr-2"></i><%= error %></p>
+      </div>
     <% } %>
 
-    <% if (page < totalPages) { %>
-      <a href="/front/analyses?page=<%= page + 1 %>" style="margin-left: 10px;">Page suivante</a>
+    <!-- Tableau -->
+    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Analyse</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Probabilité (%)</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Décision</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+            </tr>
+          </thead>
+
+          <tbody class="bg-white divide-y divide-gray-200">
+
+            <% if (!Array.isArray(analyses) || analyses.length === 0) { %>
+              <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                  <i class="fas fa-chart-line text-4xl mb-4 text-gray-300"></i>
+                  <p>Aucune analyse trouvée</p>
+                </td>
+              </tr>
+            <% } else { %>
+
+              <% analyses.forEach(a => { %>
+                <tr class="hover:bg-gray-50 transition">
+
+                  <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                    #<%= a.idAnalyse %>
+                  </td>
+
+                  <td class="px-6 py-4 text-sm text-gray-700">
+                    <i class="fas fa-exchange-alt mr-2 text-gray-400"></i>
+                    <%= a.idTransaction %>
+                  </td>
+
+                  <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                    <%= a.probabiliteFraude %> %
+                  </td>
+
+                  <td class="px-6 py-4">
+                    <% if (a.isFraude) { %>
+                      <span class="inline-flex items-center px-3 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+                        <i class="fas fa-times-circle mr-1"></i> Frauduleuse
+                      </span>
+                    <% } else { %>
+                      <span class="inline-flex items-center px-3 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                        <i class="fas fa-check-circle mr-1"></i> Normale
+                      </span>
+                    <% } %>
+                  </td>
+
+                  <td class="px-6 py-4 text-sm font-medium">
+                    <a href="/front/analyses/<%= a.idAnalyse %>"
+                       class="inline-flex items-center text-blue-600 hover:text-blue-800">
+                      <i class="fas fa-eye mr-1"></i> Voir
+                    </a>
+                  </td>
+
+                </tr>
+              <% }) %>
+
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ✅ Pagination complète -->
+    <% if (totalPages > 1) { %>
+      <div class="mt-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-600">
+
+        <p>Page <span class="font-medium"><%= page %></span> / <span class="font-medium"><%= totalPages %></span></p>
+
+        <div class="flex items-center space-x-2">
+
+          <!-- Précédent -->
+          <% if (page > 1) { %>
+            <a href="/front/analyses?page=<%= page - 1 %>"
+               class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">
+              ⬅ Précédent
+            </a>
+          <% } %>
+
+          <!-- Numéros -->
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <% if (i === page) { %>
+              <span class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">
+                <%= i %>
+              </span>
+            <% } else { %>
+              <a href="/front/analyses?page=<%= i %>"
+                 class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">
+                <%= i %>
+              </a>
+            <% } %>
+          <% } %>
+
+          <!-- Suivant -->
+          <% if (page < totalPages) { %>
+            <a href="/front/analyses?page=<%= page + 1 %>"
+               class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">
+              Suivant ➡
+            </a>
+          <% } %>
+
+        </div>
+      </div>
     <% } %>
-  </div>
 
-  <hr>
+  </main>
 
-  <p>Projet détection de fraude - Frontend EJS</p>
-
+  <%- include("../partials/footer") %>
 </body>
 </html>
